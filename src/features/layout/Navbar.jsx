@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { IconMenu2 as Menu, IconX as X } from "@tabler/icons-react";
 import { SITE } from "@/config/site";
 import Logo from "./Logo";
 

@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { authMock } from "@/services/auth-mock";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Button, PinInput, TextInput } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import { IconUserPlus as UserPlus, IconMail as Mail, IconLock as Lock, IconLoader2 as Loader2 } from "@tabler/icons-react";
 import AuthLayout from "./AuthLayout";
 import GoogleIcon from "./GoogleIcon";
-import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "./authReturnTo";
 
 export default function Register() {
@@ -58,9 +55,9 @@ export default function Register() {
     setError("");
     try {
       await authMock.resendOtp(email);
-      toast({
+      notifications.show({
         title: "Code sent",
-        description: "Check your email for the new code.",
+        message: "Check your email for the new code.",
       });
     } catch (err) {
       setError(err.message || "Failed to resend code");
@@ -84,22 +81,12 @@ export default function Register() {
           </div>
         )}
         <div className="flex justify-center mb-6">
-          <InputOTP
-            maxLength={6}
+          <PinInput
+            length={6}
             value={otpCode}
             onChange={setOtpCode}
             autoFocus
-            autoComplete="one-time-code"
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+          />
         </div>
         <Button
           className="w-full h-12 font-medium"
@@ -168,10 +155,10 @@ export default function Register() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <label htmlFor="email" className="text-sm font-medium">Email</label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="email"
               type="email"
               autoComplete="email"
@@ -185,10 +172,10 @@ export default function Register() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <label htmlFor="password" className="text-sm font-medium">Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="password"
               type="password"
               autoComplete="new-password"
@@ -201,10 +188,10 @@ export default function Register() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
+          <label htmlFor="confirm" className="text-sm font-medium">Confirm Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="confirm"
               type="password"
               autoComplete="new-password"

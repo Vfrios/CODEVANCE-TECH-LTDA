@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { MessageCircle, Mail, Instagram, MapPin, Send, CheckCircle2 } from "lucide-react";
+import { IconMessageCircle as MessageCircle, IconMail as Mail, IconBrandInstagram as Instagram, IconMapPin as MapPin, IconSend as Send, IconCircleCheck as CheckCircle2 } from "@tabler/icons-react";
 import { SITE, whatsappLink } from "@/config/site";
 
 export default function Contact() {

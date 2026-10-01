@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { authMock } from "@/services/auth-mock";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
+import { Button, TextInput } from "@mantine/core";
+import { IconLogin as LogIn, IconMail as Mail, IconLock as Lock, IconLoader2 as Loader2 } from "@tabler/icons-react";
 import AuthLayout from "./AuthLayout";
 import GoogleIcon from "./GoogleIcon";
 import { safeReturnTo } from "./authReturnTo";
@@ -79,10 +77,10 @@ export default function Login() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <label htmlFor="email" className="text-sm font-medium">Email</label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="email"
               type="email"
               autoComplete="email"
@@ -97,14 +95,14 @@ export default function Login() {
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <label htmlFor="password" className="text-sm font-medium">Password</label>
             <Link to="/forgot-password" className="text-xs text-primary hover:underline">
               Forgot password?
             </Link>
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="password"
               type="password"
               autoComplete="current-password"

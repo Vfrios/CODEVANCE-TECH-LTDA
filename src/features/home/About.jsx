@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Eye, Handshake, Target } from "lucide-react";
+import { IconEye as Eye, IconUserShare as Handshake, IconTarget as Target } from "@tabler/icons-react";
 
 const PILARES = [
   {

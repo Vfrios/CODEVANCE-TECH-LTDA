@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageCircle, Mail, Instagram, MapPin } from "lucide-react";
+import { IconMessageCircle as MessageCircle, IconMail as Mail, IconBrandInstagram as Instagram, IconMapPin as MapPin } from "@tabler/icons-react";
 import { SITE, whatsappLink } from "@/config/site";
 import Logo from "./Logo";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Search, ClipboardList, MapPinned, Repeat, Clock, TrendingDown } from "lucide-react";
+import { IconSearch as Search, IconClipboardList as ClipboardList, IconMapPinned as MapPinned, IconRepeat as Repeat, IconClock as Clock, IconTrendingDown as TrendingDown } from "@tabler/icons-react";
 
 const PROBLEMS = [
   {

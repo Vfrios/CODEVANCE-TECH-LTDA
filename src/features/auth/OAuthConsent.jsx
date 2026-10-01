@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { appParams } from "@/lib/app-params";
-import { Button } from "@/components/ui/button";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { Button } from "@mantine/core";
+import { IconShieldCheck as ShieldCheck, IconLoader2 as Loader2 } from "@tabler/icons-react";
 import AuthLayout from "./AuthLayout";
 
 // App-side OAuth consent page for the app's MCP server. The platform redirects

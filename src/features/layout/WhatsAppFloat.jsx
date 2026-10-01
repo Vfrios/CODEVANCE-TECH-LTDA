@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { IconMessageCircle as MessageCircle } from "@tabler/icons-react";
 import { whatsappLink } from "@/config/site";
 
 // Botão flutuante do WhatsApp: aparece só depois de rolar ~300px,

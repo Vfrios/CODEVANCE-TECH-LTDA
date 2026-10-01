@@ -1,5 +1,5 @@
 import React from "react";
-import { Image } from "@/components/ui/image";
+import { Image } from "@mantine/core";
 import { SITE } from "@/config/site";
 
 // Componente de logo reutilizável: ícone + nome da empresa.
@@ -21,7 +21,7 @@ export default function Logo({ variant = "navbar", withName = true }) {
         <Image
           src={SITE.logoUrl}
           alt={`Logo ${SITE.companyName}`}
-          fittingType="fill"
+          fit="fill"
           className="w-full h-full"
         />
       </span>

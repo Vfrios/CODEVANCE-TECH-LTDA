@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Check, Code2, Globe, ArrowRight, MapPin } from "lucide-react";
+import { IconCheck as Check, IconCode as Code2, IconWorld as Globe, IconArrowRight as ArrowRight, IconMapPin as MapPin } from "@tabler/icons-react";
 import TiltCard from "@/components/animations/TiltCard";
 
 const BLOCOS = [

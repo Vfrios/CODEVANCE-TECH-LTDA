@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { MessageCircle, Handshake, FileText, Code2, PartyPopper } from "lucide-react";
+import { IconMessageCircle as MessageCircle, IconUserShare as Handshake, IconFileText as FileText, IconCode as Code2, IconConfetti as PartyPopper } from "@tabler/icons-react";
 
 const PASSOS = [
   {

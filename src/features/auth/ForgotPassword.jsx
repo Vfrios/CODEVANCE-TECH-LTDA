@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { authMock } from "@/services/auth-mock";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Mail, ArrowLeft, Loader2 } from "lucide-react";
+import { Button, TextInput } from "@mantine/core";
+import { IconMail as Mail, IconArrowLeft as ArrowLeft, IconLoader2 as Loader2 } from "@tabler/icons-react";
 import AuthLayout from "./AuthLayout";
 
 export default function ForgotPassword() {
@@ -43,10 +41,10 @@ export default function ForgotPassword() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email address</Label>
+            <label htmlFor="email" className="text-sm font-medium">Email address</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-              <Input
+              <TextInput
                 id="email"
                 type="email"
                 autoComplete="email"

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { MessageCircle, ArrowRight, MapPin, Layers, LifeBuoy } from "lucide-react";
+import { IconMessageCircle as MessageCircle, IconArrowRight as ArrowRight, IconMapPin as MapPin, IconStack2 as Layers, IconLifebuoy as LifeBuoy } from "@tabler/icons-react";
 import { whatsappLink } from "@/config/site";
 
 const fade = {

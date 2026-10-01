@@ -15,7 +15,7 @@ export const SITE = {
   whatsappMessage: "Olá! Gostaria de saber mais sobre os serviços.",
 
   // E-mail de contato
-  email: "contato@seudominio.com.br",
+  email: "vfrios@cdvancetech.com",
 
   // Instagram (sem @) e endereço/cidade (placeholders)
   instagram: "nomedaempresa",

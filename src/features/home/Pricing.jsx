@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Check, Sparkles } from "lucide-react";
+import { IconCheck as Check, IconSparkles as Sparkles } from "@tabler/icons-react";
 import { PLANOS } from "@/config/site";
 
 const TABS = [

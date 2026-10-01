@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { authMock } from "@/services/auth-mock";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Lock, Loader2, AlertTriangle } from "lucide-react";
+import { Button, TextInput } from "@mantine/core";
+import { IconLock as Lock, IconLoader2 as Loader2, IconAlertTriangle as AlertTriangle } from "@tabler/icons-react";
 import AuthLayout from "./AuthLayout";
 
 export default function ResetPassword() {
@@ -66,10 +64,10 @@ export default function ResetPassword() {
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="password">New Password</Label>
+          <label htmlFor="password" className="text-sm font-medium">New Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="password"
               type="password"
               autoComplete="new-password"
@@ -83,10 +81,10 @@ export default function ResetPassword() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
+          <label htmlFor="confirm" className="text-sm font-medium">Confirm Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
+            <TextInput
               id="confirm"
               type="password"
               autoComplete="new-password"
