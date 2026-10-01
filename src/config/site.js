@@ -8,7 +8,7 @@ export const SITE = {
   companyName: "CodeVance Tech",
 
   // URL da logo (imagem pública)
-  logoUrl: "https://media.base44.com/images/public/6abdaa55c2619ae2d2ab975b/d661ab7eb_87c9eaaa-a9ca-4467-b86b-7041c7b3f3e8.png",
+  logoUrl: "/logo.png",
 
   // Número do WhatsApp no formato internacional, só dígitos (ex.: 5511999999999)
   whatsappNumber: "5511999999999",
