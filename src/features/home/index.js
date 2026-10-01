@@ -1,0 +1,10 @@
+export { default as Hero } from './Hero';
+export { default as Problems } from './Problems';
+export { default as Solutions } from './Solutions';
+export { default as HowItWorks } from './HowItWorks';
+export { default as Pricing } from './Pricing';
+export { default as Stats } from './Stats';
+export { default as About } from './About';
+export { default as Contact } from './Contact';
+export { default as ScrollProgress } from './ScrollProgress';
+export { default as SectionDivider } from './SectionDivider';
