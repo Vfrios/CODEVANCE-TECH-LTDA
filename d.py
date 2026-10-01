@@ -24,6 +24,7 @@ def should_skip(path: Path) -> bool:
 def ler_linhas(p: Path):
     try:
         with p.open("r", encoding="utf-8", errors="ignore") as f:
+            
             return f.readlines()
     except Exception as e:
         return [f"/* ERRO ao ler {p.name}: {e} */\n"]
@@ -43,6 +44,8 @@ class FileJoinerApp(tk.Tk):
 
         # Estado
         self.base_dir = tk.StringVar(value=PASTA_CODIGO_DEFAULT.as_posix())
+
+        
         self.search_text = tk.StringVar(value="")
         self.insert_separators = tk.BooleanVar(value=False)
         
