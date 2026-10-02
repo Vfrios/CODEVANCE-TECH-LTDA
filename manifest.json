@@ -1,0 +1,21 @@
+{
+  "name": "CodeVance Tech",
+  "short_name": "CodeVance Tech",
+  "start_url": "/",
+  "display": "standalone",
+  "lang": "pt-BR",
+  "theme_color": "#22C55E",
+  "background_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "80x80",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}
