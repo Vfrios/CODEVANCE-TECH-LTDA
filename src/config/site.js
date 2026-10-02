@@ -11,15 +11,15 @@ export const SITE = {
   logoUrl: "/logo.png",
 
   // Número do WhatsApp no formato internacional, só dígitos (ex.: 5511999999999)
-  whatsappNumber: "5511999999999",
-  whatsappMessage: "Olá! Gostaria de saber mais sobre os serviços.",
+  whatsappNumber: "5531983936092",
+  whatsappMessage: "Olá! Gostaria de saber mais sobre os serviços!",
 
   // E-mail de contato
   email: "vfrios@cdvancetech.com",
 
   // Instagram (sem @) e endereço/cidade (placeholders)
   instagram: "nomedaempresa",
-  city: "Sua Cidade — Brasil",
+  city: "Belo Horizonte — Brasil",
 
   // Ano do rodapé
   year: 2026,
@@ -64,7 +64,7 @@ export const PLANOS = {
     },
     {
       nome: "Sob Medida",
-      preco: "R$ 0.000",
+      preco: "A Discutir",
       destaque: false,
       itens: [
         "Loja virtual ou sistema web integrado",
@@ -104,7 +104,7 @@ export const PLANOS = {
     },
     {
       nome: "Sob Medida",
-      preco: "R$ 0.000",
+      preco: "A Discutir",
       destaque: false,
       itens: [
         "Software de ponta a ponta para sua operação",
