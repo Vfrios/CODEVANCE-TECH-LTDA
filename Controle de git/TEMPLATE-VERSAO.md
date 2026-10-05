@@ -8,6 +8,7 @@
 **Responsável:** [nome ou equipe]  
 **Branch ou commit:** `[branch]` / `[hash ou referência]`
 
+
 ## Resumo
 
 [Descreva em poucas linhas o objetivo da versão e o resultado entregue.]
