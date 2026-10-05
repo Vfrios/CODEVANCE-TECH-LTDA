@@ -12,6 +12,7 @@ export const SITE = {
 
   // Número do WhatsApp no formato internacional, só dígitos (ex.: 5511999999999)
   whatsappNumber: "5531983936092",
+  
   whatsappMessage: "Olá! Gostaria de saber mais sobre os serviços e fazer um orçamento!",
 
   // E-mail de contato
