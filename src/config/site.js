@@ -18,7 +18,7 @@ export const SITE = {
   email: "contato@cdvancetech.com",
 
   // Instagram (sem @) e endereço/cidade (placeholders)
-  instagram: "nomedaempresa",
+  instagram: "codevance_tc",
   city: "Belo Horizonte — Brasil",
 
   // Ano do rodapé
