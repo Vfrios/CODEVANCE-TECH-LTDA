@@ -29,6 +29,7 @@ export default function Contact() {
     setForm((f) => ({ ...f, [name]: value }));
   };
 
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validar()) return;
