@@ -84,12 +84,20 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <a
-          href="#contato"
-          className="hidden lg:inline-flex items-center px-5 py-2.5 rounded-xl bg-[#14803C] hover:bg-[#22C55E] text-white text-sm font-semibold transition-all duration-200 glow-green-sm btn-shine"
-        >
-          Falar agora
-        </a>
+        <div className="hidden lg:flex items-center gap-2">
+          <a
+            href="/login"
+            className="inline-flex items-center px-4 py-2.5 rounded-xl border border-forest-soft text-muted-soft hover:text-white hover:border-[#22C55E]/60 text-sm font-semibold transition-all duration-200"
+          >
+            Login
+          </a>
+          <a
+            href="/register"
+            className="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#14803C] hover:bg-[#22C55E] text-white text-sm font-semibold transition-all duration-200 glow-green-sm btn-shine"
+          >
+            Cadastre-se
+          </a>
+        </div>
 
         {/* Mobile toggle */}
         <button
@@ -120,13 +128,20 @@ export default function Navbar() {
                 </a>
               </li>
             ))}
-            <li>
+            <li className="mt-2 grid grid-cols-2 gap-2">
               <a
-                href="#contato"
+                href="/login"
                 onClick={() => setOpen(false)}
-                className="mt-2 block text-center px-4 py-3 rounded-xl bg-[#14803C] text-white font-semibold"
+                className="block text-center px-4 py-3 rounded-xl border border-forest-soft text-muted-soft hover:text-white font-semibold transition-colors"
               >
-                Falar agora
+                Login
+              </a>
+              <a
+                href="/register"
+                onClick={() => setOpen(false)}
+                className="block text-center px-4 py-3 rounded-xl bg-[#14803C] hover:bg-[#22C55E] text-white font-semibold transition-colors"
+              >
+                Cadastre-se
               </a>
             </li>
           </ul>
