@@ -142,8 +142,6 @@ export default function HowItWorks() {
                 <div
                   key={p.n}
                   data-step
-                  data-anim="fade-up"
-                  data-delay={i * 90}
                   className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                     p.destaque
                       ? `bg-gradient-to-b from-[#0B3D2E] to-[#0B3D2E]/40 border-[#22C55E]/40 lg:scale-[1.05] ${
@@ -158,17 +156,17 @@ export default function HowItWorks() {
                     <div
                       className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
                         p.destaque
-                          ? "bg-bio text-[#0A0A0A]"
+                          ? "bg-[#22C55E] text-[#06130D] border border-[#86EFAC] shadow-[0_0_18px_rgba(34,197,94,0.45)]"
                           : isActive
-                          ? "bg-bio text-[#0A0A0A] scale-110"
-                          : "bg-[#0B3D2E]/50 text-bio border border-forest-soft"
+                          ? "bg-[#22C55E] text-[#06130D] border border-[#86EFAC] scale-110 shadow-[0_0_18px_rgba(34,197,94,0.45)]"
+                          : "bg-[#0B3D2E] text-[#4ADE80] border border-[#22C55E]/60"
                       }`}
                     >
                       <p.icon size={20} />
                     </div>
                     <span
                       className={`font-heading text-3xl font-bold transition-colors duration-300 ${
-                        isActive ? "text-bio/40" : "text-white/15"
+                          isActive ? "text-[#86EFAC]/70" : "text-white/25"
                       }`}
                     >
                       0{p.n}
@@ -177,7 +175,7 @@ export default function HowItWorks() {
                   <h3 className="mt-5 text-lg font-semibold text-white">
                     {p.titulo}
                     {p.destaque && (
-                      <span className="ml-2 inline-block px-2 py-0.5 rounded-full bg-bio text-[#0A0A0A] text-[11px] font-bold align-middle">
+                      <span className="ml-2 inline-block px-1.5 py-0.5 rounded-full bg-[#14532D]/70 text-[#86EFAC] border border-[#22C55E]/50 text-[10px] font-semibold tracking-wide align-middle">
                         DIFERENCIAL
                       </span>
                     )}
