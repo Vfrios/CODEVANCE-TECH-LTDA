@@ -5,39 +5,39 @@ import { IconSearch as Search, IconClipboardList as ClipboardList, IconMapPinned
 const PROBLEMS = [
   {
     icon: Search,
-    problema: "Sua empresa não aparece no Google",
+    problema: "As pessoas têm dificuldade para encontrar sua empresa",
     solucao:
-      "Criamos um site otimizado para que clientes te encontrem facilmente na internet.",
+      "Um site organizado ajuda clientes a conhecer seu trabalho e encontrar seus contatos.",
   },
   {
     icon: ClipboardList,
     problema: "Processos feitos à mão e planilhas confusas",
     solucao:
-      "Automatizamos tarefas repetitivas com um sistema feito sob medida para o seu fluxo.",
+      "Mapeamos o processo com sua equipe e avaliamos o que pode ser automatizado.",
   },
   {
     icon: MapPinned,
-    problema: "Clientes que não conseguem te encontrar ou contratar online",
+    problema: "O primeiro contato com clientes é complicado",
     solucao:
-      "Colocamos seu negócio na internet com formas simples de contato e contratação.",
+      "Organizamos as informações e os caminhos de contato para facilitar a conversa.",
   },
   {
     icon: Repeat,
     problema: "Retrabalho e erros por falta de organização",
     solucao:
-      "Centralizamos suas informações em um sistema que organiza tudo em um só lugar.",
+      "Um sistema pode reunir as informações importantes em um só lugar.",
   },
   {
     icon: Clock,
     problema: "Processos lentos que atrasam a sua equipe",
     solucao:
-      "Agilizamos o dia a dia com ferramentas que economizam tempo e reduzem o erro.",
+      "Ferramentas adequadas podem simplificar etapas que hoje tomam tempo da equipe.",
   },
   {
     icon: TrendingDown,
     problema: "Perda de vendas por falta de follow-up",
     solucao:
-      "Criamos ferramentas que ajudam sua equipe a não perder nenhuma oportunidade.",
+      "Um fluxo de acompanhamento ajuda sua equipe a manter cada conversa organizada.",
   },
 ];
 
@@ -53,14 +53,14 @@ export default function Problems() {
           className="max-w-2xl"
         >
           <span className="text-bio text-sm font-semibold uppercase tracking-wider">
-            Problemas que resolvemos
+            Onde a tecnologia pode ajudar
           </span>
           <h2 className="mt-3 text-3xl sm:text-5xl font-bold text-white leading-tight">
-            Dores reais do seu negócio, soluções diretas.
+            O que está dificultando o dia a dia da sua empresa?
           </h2>
           <p className="mt-4 text-lg text-muted-soft">
-            Não vendemos tecnologia por vender. Entendemos o problema e
-            construímos a solução certa para ele.
+            Cada empresa trabalha de um jeito. A conversa inicial ajuda a entender
+            o contexto antes de sugerir qualquer solução.
           </p>
         </motion.div>
 
@@ -70,16 +70,15 @@ export default function Problems() {
               key={p.problema}
               data-anim="fade-up"
               data-delay={(i % 3) * 90}
-              className="group rounded-2xl border border-forest-soft bg-[#141414] p-6 hover:border-[#22C55E]/40 hover:bg-[#0B3D2E]/20 hover:-translate-y-1.5 transition-all duration-300"
+              className="group rounded-2xl border border-forest-soft bg-[#141414] p-6 hover:border-[#22C55E]/40 hover:bg-[#0B3D2E]/20 transition-colors duration-300"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#0B3D2E]/50 border border-forest-soft flex items-center justify-center text-bio group-hover:bg-[#14803C] group-hover:text-white group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
+              <div className="w-12 h-12 rounded-xl bg-[#0B3D2E]/50 border border-forest-soft flex items-center justify-center text-bio group-hover:bg-[#14803C] group-hover:text-white transition-colors duration-300">
                 <p.icon size={22} />
               </div>
               <h3 className="mt-5 text-lg font-semibold text-white leading-snug">
                 {p.problema}
               </h3>
               <p className="mt-3 text-muted-soft text-[15px] leading-relaxed">
-                <span className="text-bio font-medium">Solução: </span>
                 {p.solucao}
               </p>
             </div>

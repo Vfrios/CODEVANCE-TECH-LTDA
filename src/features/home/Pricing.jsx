@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { IconCheck as Check, IconSparkles as Sparkles } from "@tabler/icons-react";
+import { IconCheck as Check } from "@tabler/icons-react";
 import { PLANOS } from "@/config/site";
 
 const TABS = [
@@ -14,7 +14,6 @@ export default function Pricing() {
 
   return (
     <section id="valores" className="relative bg-obsidian py-24 sm:py-32">
-      <div className="absolute inset-0 grid-pattern opacity-30" />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -27,20 +26,22 @@ export default function Pricing() {
             Valores
           </span>
           <h2 className="mt-3 text-3xl sm:text-5xl font-bold text-white leading-tight">
-            Planos para cada fase da sua empresa.
+            Valores para começar a conversa.
           </h2>
           <p className="mt-4 text-lg text-muted-soft">
-            Escolha a categoria e veja as opções. Os valores são referências —
-            o orçamento final é sempre personalizado.
+            Confira os valores iniciais. A proposta final depende do escopo e
+            do que sua empresa precisa.
           </p>
         </motion.div>
 
         {/* Toggle */}
         <div className="mt-10 flex justify-center">
-          <div className="inline-flex p-1.5 rounded-2xl bg-[#111111] border border-forest-soft">
+          <div role="group" aria-label="Tipo de projeto" className="inline-flex p-1.5 rounded-2xl bg-[#111111] border border-forest-soft">
             {TABS.map((t) => (
               <button
                 key={t.key}
+                type="button"
+                aria-pressed={tab === t.key}
                 onClick={() => setTab(t.key)}
                 className={`relative px-7 py-3 rounded-xl text-sm font-semibold transition-colors duration-300 ${
                   tab === t.key ? "text-white" : "text-muted-soft hover:text-white"
@@ -74,18 +75,8 @@ export default function Pricing() {
                 key={p.nome}
                 data-anim="fade-up"
                 data-delay={i * 90}
-                className={`relative rounded-3xl p-7 border flex flex-col transition-all duration-300 hover:-translate-y-1.5 ${
-                  p.destaque
-                    ? "bg-gradient-to-b from-[#0B3D2E]/60 to-[#111111] border-[#22C55E]/40 md:scale-[1.04] glow-green-sm"
-                    : "bg-[#111111] border-forest-soft"
-                }`}
+                className="relative rounded-3xl border border-forest-soft bg-[#111111] p-7 flex flex-col"
               >
-                {p.destaque && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-bio text-[#0A0A0A] text-xs font-bold">
-                    <Sparkles size={13} />
-                    MAIS ESCOLHIDO
-                  </div>
-                )}
                 <h3 className="text-xl font-semibold text-white">{p.nome}</h3>
                 <p className="mt-3 text-2xl sm:text-3xl font-bold text-bio font-heading">
                   {p.preco}
@@ -102,11 +93,7 @@ export default function Pricing() {
                 </ul>
                 <a
                   href="#contato"
-                  className={`mt-7 inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-semibold transition-all duration-200 ${
-                    p.destaque
-                      ? "bg-[#14803C] hover:bg-bio text-white glow-green-sm"
-                      : "border border-[#14803C]/60 hover:bg-[#14803C] text-white"
-                  }`}
+                  className="mt-7 inline-flex items-center justify-center rounded-xl border border-[#14803C]/60 px-6 py-3.5 font-semibold text-white transition-colors duration-200 hover:bg-[#14803C]"
                 >
                   Solicitar orçamento
                 </a>
@@ -116,8 +103,8 @@ export default function Pricing() {
         </AnimatePresence>
 
         <p className="mt-10 text-center text-sm text-muted-soft max-w-2xl mx-auto">
-          Os valores podem variar conforme a necessidade do projeto. Entre em
-          contato para um orçamento personalizado.
+          Os valores são referências iniciais. O orçamento é definido depois
+          de entendermos o escopo do projeto.
         </p>
       </div>
     </section>

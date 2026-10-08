@@ -3,7 +3,6 @@ import useScrollAnimations from "@/hooks/useScrollAnimations";
 import {
   ScrollProgress,
   Hero,
-  Stats,
   Problems,
   Solutions,
   SectionDivider,
@@ -23,7 +22,6 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <Stats />
         <Problems />
         <SectionDivider />
         <Solutions />

@@ -13,14 +13,14 @@ const PASSOS = [
     n: 2,
     icon: Handshake,
     titulo: "Encontro presencial",
-    desc: "Nos encontramos para entender suas necessidades de verdade. Obrigatório para todo projeto de site.",
+    desc: "Alinhamos objetivos e escopo em uma conversa presencial para projetos de site.",
     destaque: true,
   },
   {
     n: 3,
     icon: FileText,
     titulo: "Proposta e orçamento",
-    desc: "Montamos uma proposta clara, com escopo e valor, sem surpresas.",
+    desc: "Apresentamos uma proposta com escopo, etapas e valores definidos.",
   },
   {
     n: 4,
@@ -112,9 +112,8 @@ export default function HowItWorks() {
             Um processo simples, do primeiro contato à entrega.
           </h2>
           <p className="mt-4 text-lg text-muted-soft">
-            O passo <span className="text-bio font-semibold">2</span> é o nosso
-            diferencial: acreditamos que entender você de perto faz toda a
-            diferença.
+            O processo começa entendendo o contexto e termina com uma solução
+            entregue, explicada e pronta para uso.
           </p>
         </motion.div>
 
@@ -144,11 +143,9 @@ export default function HowItWorks() {
                   data-step
                   className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                     p.destaque
-                      ? `bg-gradient-to-b from-[#0B3D2E] to-[#0B3D2E]/40 border-[#22C55E]/40 lg:scale-[1.05] ${
-                          isActive ? "step-active-destaque" : "glow-green-sm"
-                        }`
+                      ? "bg-[#0B3D2E]/40 border-[#22C55E]/40"
                       : `bg-[#141414] border-forest-soft ${
-                          isActive ? "border-[#22C55E]/50 -translate-y-1" : ""
+                          isActive ? "border-[#22C55E]/50" : ""
                         }`
                   }`}
                 >
@@ -156,9 +153,9 @@ export default function HowItWorks() {
                     <div
                       className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
                         p.destaque
-                          ? "bg-[#22C55E] text-[#06130D] border border-[#86EFAC] shadow-[0_0_18px_rgba(34,197,94,0.45)]"
+                          ? "bg-[#22C55E] text-[#06130D] border border-[#86EFAC]"
                           : isActive
-                          ? "bg-[#22C55E] text-[#06130D] border border-[#86EFAC] scale-110 shadow-[0_0_18px_rgba(34,197,94,0.45)]"
+                          ? "bg-[#22C55E] text-[#06130D] border border-[#86EFAC]"
                           : "bg-[#0B3D2E] text-[#4ADE80] border border-[#22C55E]/60"
                       }`}
                     >
@@ -174,11 +171,6 @@ export default function HowItWorks() {
                   </div>
                   <h3 className="mt-5 text-lg font-semibold text-white">
                     {p.titulo}
-                    {p.destaque && (
-                      <span className="ml-2 inline-block px-1.5 py-0.5 rounded-full bg-[#14532D]/70 text-[#86EFAC] border border-[#22C55E]/50 text-[10px] font-semibold tracking-wide align-middle">
-                        DIFERENCIAL
-                      </span>
-                    )}
                   </h3>
                   <p className="mt-2 text-sm text-muted-soft leading-relaxed">
                     {p.desc}

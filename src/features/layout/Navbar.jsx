@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { IconMenu2 as Menu, IconX as X } from "@tabler/icons-react";
-import { SITE } from "@/config/site";
+import { SITE, whatsappLink } from "@/config/site";
 import Logo from "./Logo";
 
 const LINKS = [
@@ -15,19 +15,13 @@ const LINKS = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#inicio");
 
   useEffect(() => {
-    let last = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 24);
-      // Esconde ao rolar para baixo, reaparece ao rolar para cima.
-      if (!open && y > 220 && y > last + 4) setHidden(true);
-      else if (y < last - 4 || y < 220) setHidden(false);
-      last = y;
       // Scroll spy: destaca a seção visível.
       const sections = LINKS.map((l) => l.href.slice(1));
       let current = "#inicio";
@@ -40,13 +34,11 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, [open]);
+  }, []);
 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        hidden ? "-translate-y-full" : "translate-y-0"
-      } ${
         scrolled
           ? "bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-forest-soft"
           : "bg-transparent"
@@ -84,24 +76,22 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden lg:flex items-center">
           <a
-            href="/login"
-            className="inline-flex items-center px-4 py-2.5 rounded-xl border border-forest-soft text-muted-soft hover:text-white hover:border-[#22C55E]/60 text-sm font-semibold transition-all duration-200"
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#14803C] hover:bg-[#22C55E] text-white text-sm font-semibold transition-colors duration-200"
           >
-            Login
-          </a>
-          <a
-            href="/register"
-            className="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#14803C] hover:bg-[#22C55E] text-white text-sm font-semibold transition-all duration-200 glow-green-sm btn-shine"
-          >
-            Cadastre-se
+            Fale com a gente
           </a>
         </div>
 
         {/* Mobile toggle */}
         <button
-          aria-label="Abrir menu"
+          aria-label={open ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={open}
+          aria-controls="mobile-navigation"
           onClick={() => setOpen((v) => !v)}
           className="lg:hidden p-2 -mr-2 text-white"
         >
@@ -111,7 +101,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="lg:hidden bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-forest-soft">
+        <div id="mobile-navigation" className="lg:hidden bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-forest-soft">
           <ul className="px-5 py-4 flex flex-col gap-1">
             {LINKS.map((l) => (
               <li key={l.href}>
@@ -128,20 +118,15 @@ export default function Navbar() {
                 </a>
               </li>
             ))}
-            <li className="mt-2 grid grid-cols-2 gap-2">
+            <li className="mt-2">
               <a
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="block text-center px-4 py-3 rounded-xl border border-forest-soft text-muted-soft hover:text-white font-semibold transition-colors"
-              >
-                Login
-              </a>
-              <a
-                href="/register"
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
                 className="block text-center px-4 py-3 rounded-xl bg-[#14803C] hover:bg-[#22C55E] text-white font-semibold transition-colors"
               >
-                Cadastre-se
+                Fale com a gente
               </a>
             </li>
           </ul>

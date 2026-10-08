@@ -79,12 +79,6 @@
   .glow-green-sm {
     box-shadow: 0 0 24px -10px rgba(34, 197, 94, 0.5);
   }
-  .grid-pattern {
-    background-image:
-      linear-gradient(rgba(34, 197, 94, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 197, 94, 0.06) 1px, transparent 1px);
-    background-size: 56px 56px;
-  }
 }
 
 /* Scrollbar */
@@ -102,33 +96,6 @@
   background: #14803C;
 }
 
-@keyframes pulse-ring {
-  0% { transform: scale(0.95); opacity: 0.7; }
-  70% { transform: scale(1.4); opacity: 0; }
-  100% { transform: scale(1.4); opacity: 0; }
-}
-.animate-pulse-ring::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: #22C55E;
-  animation: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  z-index: -1;
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-14px); }
-}
-.animate-float-slow {
-  animation: float-slow 7s ease-in-out infinite;
-}
-
-@keyframes draw-line {
-  to { stroke-dashoffset: 0; }
-}
-
 /* ============================================================
    SISTEMA DE ANIMAÇÕES DE ROLAGEM — CodeVance Tech
    Ajuste durações, easing e intensidades nas variáveis abaixo.
@@ -139,7 +106,6 @@
   --anim-distance: 32px;                           /* deslocamento inicial (translate) */
   --anim-scale: 0.95;                              /* zoom inicial do zoom-in */
   --stagger-step: 90ms;                            /* atraso entre cards em cascata */
-  --tilt-max: 5deg;                                /* inclinação máxima do tilt 3D */
   --progress-height: 3px;                          /* altura da barra de progresso */
 }
 
@@ -174,39 +140,6 @@ section[id] { scroll-margin-top: 84px; }
 /* ---- Parallax (data-parallax) ---- */
 [data-parallax] { will-change: transform; }
 
-/* ---- Destaque do título do Hero: gradiente + sublinhado que se desenha ---- */
-.hero-highlight {
-  position: relative;
-  display: inline-block;
-  background: linear-gradient(90deg, #14803C, #22C55E);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.hero-highlight::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  height: 3px;
-  width: 100%;
-  background: linear-gradient(90deg, #14803C, #22C55E);
-  border-radius: 3px;
-  transform: scaleX(0);
-  transform-origin: left center;
-  animation: hero-underline 1.1s var(--anim-easing) 0.5s forwards;
-}
-@keyframes hero-underline {
-  to { transform: scaleX(1); }
-}
-
-/* ---- Tilt 3D ---- */
-.tilt-card {
-  transform-style: preserve-3d;
-  transition: transform 0.2s ease-out;
-  will-change: transform;
-}
-
 /* ---- Brilho que atravessa o botão principal (esquerda → direita) ---- */
 .btn-shine { position: relative; overflow: hidden; }
 .btn-shine::after {
@@ -223,13 +156,6 @@ section[id] { scroll-margin-top: 84px; }
 }
 .btn-shine:hover::after { left: 140%; }
 
-/* ---- Pulse extra do passo diferencial (encontro presencial) ---- */
-@keyframes step-pulse {
-  0%, 100% { box-shadow: 0 0 24px -10px rgba(34, 197, 94, 0.5); }
-  50% { box-shadow: 0 0 36px -6px rgba(34, 197, 94, 0.85); }
-}
-.step-active-destaque { animation: step-pulse 2s ease-in-out infinite; }
-
 /* ---- Acessibilidade: respeitar prefers-reduced-motion ---- */
 @media (prefers-reduced-motion: reduce) {
   .js [data-anim] {
@@ -237,9 +163,7 @@ section[id] { scroll-margin-top: 84px; }
     transform: none !important;
     transition: opacity 0.2s ease !important;
   }
-  [data-parallax],
-  .tilt-card,
-  .hero-highlight::after {
+  [data-parallax] {
     transform: none !important;
     animation: none !important;
   }

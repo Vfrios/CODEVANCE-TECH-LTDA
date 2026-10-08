@@ -11,12 +11,12 @@ const PILARES = [
   {
     icon: Handshake,
     titulo: "Proximidade",
-    desc: "Atendimento humano e presencial. Falamos a sua língua, não a língua da tecnologia.",
+    desc: "Conversamos com clareza e, quando o projeto pede, nos encontramos pessoalmente.",
   },
   {
     icon: Eye,
     titulo: "Resultado",
-    desc: "Medimos o sucesso pelo problema que resolvemos, não pelo código que escrevemos.",
+    desc: "Avaliamos o projeto pelo que ele precisa resolver na rotina da empresa.",
   },
 ];
 
@@ -39,15 +39,12 @@ export default function About() {
             </h2>
             <div className="mt-6 space-y-4 text-lg text-muted-soft leading-relaxed">
               <p>
-                Nascemos para resolver problemas reais de empresas reais. Não
-                acreditamos em soluções genéricas — cada negócio tem sua própria
-                forma de trabalhar, e a tecnologia precisa se adaptar a ela, e
-                não o contrário.
+                Antes de falar em tecnologia, queremos entender como sua empresa
+                trabalha e o que está tomando tempo da equipe.
               </p>
               <p>
-                Nossa missão é simples: entender de perto o que atrapalha o seu
-                crescimento e construir a ferramenta certa para destravar isso.
-                Por isso todo projeto de site começa com um encontro presencial.
+                A partir dessa conversa, definimos o escopo e propomos um caminho
+                possível. Você acompanha as decisões do projeto do início à entrega.
               </p>
             </div>
           </motion.div>
@@ -58,9 +55,9 @@ export default function About() {
                 key={p.titulo}
                 data-anim="fade-right"
                 data-delay={i * 100}
-                className="group flex gap-5 rounded-2xl border border-forest-soft bg-[#141414] p-6 hover:border-[#22C55E]/40 hover:-translate-y-1.5 transition-all duration-300"
+                className="group flex gap-5 rounded-2xl border border-forest-soft bg-[#141414] p-6 hover:border-[#22C55E]/40 transition-colors duration-300"
               >
-                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#0B3D2E]/50 border border-forest-soft flex items-center justify-center text-bio group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#0B3D2E]/50 border border-forest-soft flex items-center justify-center text-bio">
                   <p.icon size={26} />
                 </div>
                 <div>

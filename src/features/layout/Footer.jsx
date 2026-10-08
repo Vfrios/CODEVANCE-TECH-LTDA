@@ -22,8 +22,7 @@ export default function Footer() {
               <Logo variant="footer" />
             </a>
             <p className="mt-4 text-sm text-muted-soft max-w-xs leading-relaxed">
-              Resolução de problemas da sua empresa. Softwares e sites sob
-              medida, com atendimento presencial.
+              Sites e sistemas desenvolvidos a partir da rotina de cada empresa.
             </p>
           </div>
 

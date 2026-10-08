@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { IconMessageCircle as MessageCircle, IconMail as Mail, IconBrandInstagram as Instagram, IconMapPin as MapPin, IconSend as Send, IconCircleCheck as CheckCircle2 } from "@tabler/icons-react";
+import { IconMessageCircle as MessageCircle, IconMail as Mail, IconBrandInstagram as Instagram, IconMapPin as MapPin, IconSend as Send } from "@tabler/icons-react";
 import { SITE, whatsappLink } from "@/config/site";
 
 export default function Contact() {
@@ -11,7 +11,7 @@ export default function Contact() {
     tipo: "Site",
     mensagem: "",
   });
-  const [enviado, setEnviado] = useState(false);
+  const [linkWhatsApp, setLinkWhatsApp] = useState("");
   const [erros, setErros] = useState({});
 
   const validar = () => {
@@ -27,21 +27,31 @@ export default function Contact() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
+    setErros((current) => {
+      if (!current[name]) return current;
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
   };
 
-  
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validar()) return;
 
-    // ============================================================
-    // PONTO DE INTEGRAÇÃO DO FORMULÁRIO
-    // Conecte aqui o envio real (Formspree, EmailJS ou backend).
-    // Exemplo com backend: await fetch("/api/contato", { method: "POST", body: JSON.stringify(form) })
-    // ============================================================
-    setEnviado(true);
-    setForm({ nome: "", email: "", telefone: "", tipo: "Site", mensagem: "" });
-    setTimeout(() => setEnviado(false), 6000);
+    const mensagem = [
+      `Olá! Meu nome é ${form.nome.trim()}.`,
+      `Quero conversar sobre um projeto de ${form.tipo.toLowerCase()}.`,
+      `E-mail: ${form.email.trim()}`,
+      form.telefone.trim() && `Telefone: ${form.telefone.trim()}`,
+      `Mensagem: ${form.mensagem.trim()}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    setLinkWhatsApp(
+      `https://wa.me/${SITE.whatsappNumber}?text=${encodeURIComponent(mensagem)}`
+    );
   };
 
   const inputBase =
@@ -62,11 +72,11 @@ export default function Contact() {
             Contato
           </span>
           <h2 className="mt-3 text-3xl sm:text-5xl font-bold text-white leading-tight">
-            Vamos conversar sobre o seu problema?
+            Conte o que sua empresa precisa.
           </h2>
           <p className="mt-4 text-lg text-muted-soft">
-            Para projetos de sites, o primeiro passo é agendar um encontro
-            presencial. Conte o que você precisa e nós cuidamos do resto.
+            Diga um pouco sobre o que você está buscando. A gente lê sua
+            mensagem e combina o próximo passo com você.
           </p>
         </motion.div>
 
@@ -142,15 +152,35 @@ export default function Contact() {
             transition={{ duration: 0.5 }}
             className="rounded-3xl border border-forest-soft bg-[#111111] p-7 sm:p-9"
           >
-            {enviado ? (
-              <div className="flex flex-col items-center justify-center text-center py-16">
-                <CheckCircle2 size={56} className="text-bio" />
+            {linkWhatsApp ? (
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center text-center py-16"
+              >
+                <MessageCircle size={48} className="text-bio" />
                 <p className="mt-5 text-xl font-semibold text-white">
-                  Mensagem enviada com sucesso!
+                  Sua mensagem está pronta
                 </p>
-                <p className="mt-2 text-muted-soft">
-                  Em breve entraremos em contato com você.
+                <p className="mt-2 max-w-sm text-muted-soft">
+                  Vamos abrir o WhatsApp com os dados que você informou. Revise
+                  a mensagem e toque em enviar por lá.
                 </p>
+                <a
+                  href={linkWhatsApp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-[#14803C] px-6 py-3 text-white font-semibold transition-colors hover:bg-bio"
+                >
+                  <MessageCircle size={18} />
+                  Abrir WhatsApp
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setLinkWhatsApp("")}
+                  className="mt-4 text-sm text-muted-soft underline underline-offset-4 hover:text-white"
+                >
+                  Voltar e editar
+                </button>
               </div>
             ) : (
               <>
@@ -165,8 +195,11 @@ export default function Contact() {
                       placeholder="Nome *"
                       className={inputBase}
                       aria-invalid={!!erros.nome}
+                      aria-describedby={erros.nome ? "erro-nome" : undefined}
+                      autoComplete="name"
+                      required
                     />
-                    {erros.nome && <p className="text-red-400 text-xs mt-1">{erros.nome}</p>}
+                    {erros.nome && <p id="erro-nome" className="text-red-400 text-xs mt-1">{erros.nome}</p>}
                   </div>
 
                   <div>
@@ -180,8 +213,11 @@ export default function Contact() {
                       placeholder="E-mail *"
                       className={inputBase}
                       aria-invalid={!!erros.email}
+                      aria-describedby={erros.email ? "erro-email" : undefined}
+                      autoComplete="email"
+                      required
                     />
-                    {erros.email && <p className="text-red-400 text-xs mt-1">{erros.email}</p>}
+                    {erros.email && <p id="erro-email" className="text-red-400 text-xs mt-1">{erros.email}</p>}
                   </div>
 
                   <div>
@@ -193,6 +229,7 @@ export default function Contact() {
                       onChange={handleChange}
                       placeholder="Telefone (opcional)"
                       className={inputBase}
+                      autoComplete="tel"
                     />
                   </div>
 
@@ -218,12 +255,14 @@ export default function Contact() {
                       name="mensagem"
                       value={form.mensagem}
                       onChange={handleChange}
-                      placeholder="Conte o seu problema... *"
+                      placeholder="O que você gostaria de resolver? *"
                       rows={4}
                       className={`${inputBase} resize-none`}
                       aria-invalid={!!erros.mensagem}
+                      aria-describedby={erros.mensagem ? "erro-mensagem" : undefined}
+                      required
                     />
-                    {erros.mensagem && <p className="text-red-400 text-xs mt-1">{erros.mensagem}</p>}
+                    {erros.mensagem && <p id="erro-mensagem" className="text-red-400 text-xs mt-1">{erros.mensagem}</p>}
                   </div>
                 </div>
 
@@ -232,7 +271,7 @@ export default function Contact() {
                   className="btn-shine mt-7 w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-[#14803C] hover:bg-bio text-white font-semibold transition-all duration-200 glow-green-sm"
                 >
                   <Send size={18} />
-                  Enviar mensagem
+                  Continuar pelo WhatsApp
                 </button>
               </>
             )}

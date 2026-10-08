@@ -25,7 +25,7 @@ export default function OAuthConsent() {
       let redirecting = false;
       try {
         if (!ctx) {
-          setError("This authorization link is invalid or has expired.");
+          setError("Este link de autorização é inválido ou expirou.");
           return;
         }
         // Resolve the handle first: a dead handle must never render
@@ -41,7 +41,7 @@ export default function OAuthConsent() {
           { credentials: "include", headers: infoHeaders },
         );
         if (!res.ok) {
-          setError("This authorization link is invalid or has expired.");
+          setError("Este link de autorização é inválido ou expirou.");
           return;
         }
         const data = await res.json();
@@ -71,8 +71,8 @@ export default function OAuthConsent() {
           return;
         }
         setInfo(data);
-      } catch (e) {
-        setError("Could not load this authorization request. Please try again.");
+      } catch {
+        setError("Não foi possível carregar a solicitação de autorização. Tente novamente.");
       } finally {
         if (!redirecting) setChecking(false);
       }
@@ -112,12 +112,12 @@ export default function OAuthConsent() {
         // Show a terminal reconnect state, not an impossible "try again".
         if ([400, 403, 404, 409].includes(res.status)) {
           let detail = "";
-          try { detail = (await res.json()).detail; } catch (_) { /* keep default */ }
-          setReconnect(detail || "This authorization can no longer be completed. Reconnect from your AI client to try again.");
+          try { detail = (await res.json()).detail; } catch { /* keep default */ }
+          setReconnect(detail || "Esta autorização não pode mais ser concluída. Inicie uma nova conexão no seu cliente de IA.");
           setSubmitting(false);
           return;
         }
-        throw new Error("Could not complete authorization. Please try again.");
+        throw new Error("Não foi possível concluir a autorização. Tente novamente.");
       }
       const data = await res.json();
       window.location.href = data.redirect_url;
@@ -136,24 +136,24 @@ export default function OAuthConsent() {
 
   if (checking) {
     return (
-      <AuthLayout icon={ShieldCheck} title="Authorize access">
+      <AuthLayout icon={ShieldCheck} title="Autorizar acesso">
         <div className="flex items-center justify-center py-6 text-muted-foreground">
           <Loader2 className="w-5 h-5 mr-2 animate-spin" aria-hidden="true" />
-          Loading…
+          Carregando…
         </div>
       </AuthLayout>
     );
   }
 
-  const client = (info && info.client_name) || "An AI client";
-  const appName = (info && info.app_name) || "this app";
+  const client = (info && info.client_name) || "Um cliente de IA";
+  const appName = (info && info.app_name) || "o aplicativo";
 
   if (decided) {
     return (
       <AuthLayout
         icon={ShieldCheck}
-        title={decided === "approve" ? "Access granted" : "Access denied"}
-        subtitle={`You can return to ${client} and close this window.`}
+        title={decided === "approve" ? "Acesso autorizado" : "Acesso negado"}
+        subtitle={`Você pode voltar para ${client} e fechar esta janela.`}
       />
     );
   }
@@ -163,7 +163,7 @@ export default function OAuthConsent() {
   // no approve/deny controls.
   if (reconnect) {
     return (
-      <AuthLayout icon={ShieldCheck} title="Reconnect required">
+      <AuthLayout icon={ShieldCheck} title="Reconexão necessária">
         <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {reconnect}
         </div>
@@ -176,7 +176,7 @@ export default function OAuthConsent() {
   // the error alone, never the approve/deny controls.
   if (error && !info) {
     return (
-      <AuthLayout icon={ShieldCheck} title="Authorize access">
+      <AuthLayout icon={ShieldCheck} title="Autorizar acesso">
         <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
         </div>
@@ -189,17 +189,19 @@ export default function OAuthConsent() {
   return (
     <AuthLayout
       icon={ShieldCheck}
-      title="Authorize access"
-      subtitle={`${client} wants to access ${appName} on your behalf`}
+      title="Autorizar acesso"
+      subtitle={`${client} solicita sua autorização para acessar ${appName}.`}
     >
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+      <div role="alert" className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
         </div>
       )}
 
       <p className="text-sm font-medium text-foreground mb-2">
-        {tools.length ? `It will be able to use these tools in ${appName}:` : "No tools requested"}
+        {tools.length
+          ? "Este cliente poderá usar as seguintes ferramentas:"
+          : "Nenhuma ferramenta foi solicitada."}
       </p>
       {tools.length > 0 && (
         <ul className="space-y-2 text-sm mb-6">
@@ -223,7 +225,7 @@ export default function OAuthConsent() {
           disabled={submitting}
           onClick={() => respond("deny")}
         >
-          Deny
+          Não autorizar
         </Button>
         <Button
           className="flex-1 h-12 font-medium"
@@ -231,7 +233,7 @@ export default function OAuthConsent() {
           onClick={() => respond("approve")}
         >
           {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-          Approve
+          Autorizar
         </Button>
       </div>
     </AuthLayout>

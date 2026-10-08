@@ -1,9 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import Logo from "@/features/layout/Logo";
 
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
+        <Link to="/" className="mb-8 flex justify-center" aria-label="Voltar ao início">
+          <Logo />
+        </Link>
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
             <Icon className="w-7 h-7 text-primary-foreground" aria-hidden="true" />

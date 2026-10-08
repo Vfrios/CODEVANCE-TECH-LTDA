@@ -18,7 +18,7 @@ export const SITE = {
   // E-mail de contato
   email: "contato@cdvancetech.com",
 
-  // Instagram (sem @) e endereço/cidade (placeholders)
+  // Instagram (sem @) e cidade
   instagram: "codevance_tc",
   city: "Belo Horizonte — Brasil",
 
@@ -34,26 +34,23 @@ export const whatsappLink = `https://wa.me/${SITE.whatsappNumber}?text=${encodeU
 // ============================================================
 // PLANOS / PREÇOS
 // Para atualizar todos os preços e itens do site, edite abaixo.
-// Use placeholders como "R$ 0.000" ou "A partir de R$ XXX".
+// Atualize os valores e itens conforme as ofertas da empresa.
 // ============================================================
 export const PLANOS = {
   sites: [
     {
       nome: "Essencial",
       preco: "A partir de R$ 1.500",
-      destaque: false,
       itens: [
         "Site institucional de até 5 páginas",
         "Design responsivo (celular e desktop)",
         "Formulário de contato",
-        "Entrega em até 15 dias",
         "1 encontro presencial de alinhamento",
       ],
     },
     {
       nome: "Profissional",
       preco: "A partir de R$ 3.500",
-      destaque: true, // Mais escolhido
       itens: [
         "Site institucional ou landing page completa",
         "Design exclusivo sob medida",
@@ -65,14 +62,13 @@ export const PLANOS = {
     },
     {
       nome: "Sob Medida",
-      preco: "A Discutir",
-      destaque: false,
+      preco: "Sob consulta",
       itens: [
         "Loja virtual ou sistema web integrado",
         "Funcionalidades personalizadas",
         "Painel de gerenciamento",
         "Integrações com pagamentos e ferramentas",
-        "Encontros presenciais ilimitados na fase de projeto",
+        "Reuniões de alinhamento durante o projeto",
         "Suporte e manutenção contínua",
       ],
     },
@@ -81,7 +77,6 @@ export const PLANOS = {
     {
       nome: "Essencial",
       preco: "A partir de R$ 3.000",
-      destaque: false,
       itens: [
         "Sistema simples de gestão ou automação",
         "Até 3 telas/funcionalidades",
@@ -93,7 +88,6 @@ export const PLANOS = {
     {
       nome: "Profissional",
       preco: "A partir de R$ 8.000",
-      destaque: true, // Mais escolhido
       itens: [
         "Sistema de gestão ou automação completa",
         "Integrações com ferramentas que você já usa",
@@ -105,14 +99,13 @@ export const PLANOS = {
     },
     {
       nome: "Sob Medida",
-      preco: "A Discutir",
-      destaque: false,
+      preco: "Sob consulta",
       itens: [
         "Software de ponta a ponta para sua operação",
         "Arquitetura pensada para crescer com a empresa",
         "Integrações avançadas e migração de dados",
         "Equipe dedicada durante o projeto",
-        "Encontros presenciais ilimitados",
+        "Reuniões de alinhamento durante o projeto",
         "Suporte e evolução contínua",
       ],
     },

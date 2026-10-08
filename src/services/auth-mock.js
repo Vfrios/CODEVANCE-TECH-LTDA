@@ -9,7 +9,7 @@
 // ============================================================================
 
 const NOT_CONFIGURED =
-  'Autenticação ainda não configurada. Substitua src/services/auth-mock.js por um backend real.';
+  'O acesso à conta ainda não está disponível. Entre em contato com a equipe para obter ajuda.';
 
 const TOKEN_KEYS = ['token', 'access_token'];
 

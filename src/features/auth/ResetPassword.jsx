@@ -18,7 +18,7 @@ export default function ResetPassword() {
     e.preventDefault();
     setError("");
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("As senhas não coincidem.");
       return;
     }
     setLoading(true);
@@ -26,7 +26,7 @@ export default function ResetPassword() {
       await authMock.resetPassword({ resetToken, newPassword });
       window.location.href = "/login";
     } catch (err) {
-      setError(err.message || "Failed to reset password");
+      setError(err.message || "Não foi possível redefinir a senha. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -36,16 +36,16 @@ export default function ResetPassword() {
     return (
       <AuthLayout
         icon={AlertTriangle}
-        title="Invalid reset link"
-        subtitle="This password reset link is missing or invalid"
+        title="Link de redefinição inválido"
+        subtitle="Este link está incompleto ou não é mais válido."
         footer={
           <Link to="/forgot-password" className="text-primary font-medium hover:underline">
-            Request a new link
+            Solicitar outro link
           </Link>
         }
       >
         <p className="text-sm text-foreground text-center">
-          The link you used appears to be incomplete. Please request a new password reset email.
+          Solicite uma nova mensagem para redefinir sua senha.
         </p>
       </AuthLayout>
     );
@@ -54,17 +54,17 @@ export default function ResetPassword() {
   return (
     <AuthLayout
       icon={Lock}
-      title="New password"
-      subtitle="Enter your new password below"
+      title="Nova senha"
+      subtitle="Escolha uma senha nova para sua conta."
     >
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+        <div role="alert" className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">New Password</label>
+          <label htmlFor="password" className="text-sm font-medium">Nova senha</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <TextInput
@@ -81,7 +81,7 @@ export default function ResetPassword() {
           </div>
         </div>
         <div className="space-y-2">
-          <label htmlFor="confirm" className="text-sm font-medium">Confirm Password</label>
+          <label htmlFor="confirm" className="text-sm font-medium">Confirme a senha</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <TextInput
@@ -100,10 +100,10 @@ export default function ResetPassword() {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Resetting...
+              Atualizando...
             </>
           ) : (
-            "Reset password"
+            "Salvar nova senha"
           )}
         </Button>
       </form>

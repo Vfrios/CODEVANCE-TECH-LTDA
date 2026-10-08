@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { IconMessageCircle as MessageCircle } from "@tabler/icons-react";
 import { whatsappLink } from "@/config/site";
 
-// Botão flutuante do WhatsApp: aparece só depois de rolar ~300px,
-// mantendo o pulso leve já existente.
+// Botão flutuante do WhatsApp: aparece depois de rolar a página.
 export default function WhatsAppFloat() {
   const [show, setShow] = useState(false);
 
@@ -27,7 +26,6 @@ export default function WhatsAppFloat() {
       }`}
     >
       <span className="relative flex items-center">
-        <span className="absolute inset-0 rounded-full animate-pulse-ring" />
         <span className="relative flex items-center gap-2.5 pl-3.5 pr-4 py-3.5 rounded-full bg-[#14803C] group-hover:bg-bio text-white shadow-lg transition-all duration-200 glow-green-sm">
           <MessageCircle size={26} className="flex-shrink-0" />
           <span className="hidden sm:block text-sm font-semibold whitespace-nowrap max-w-0 group-hover:max-w-[200px] overflow-hidden transition-all duration-300">
