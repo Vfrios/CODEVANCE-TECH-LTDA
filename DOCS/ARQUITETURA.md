@@ -123,7 +123,7 @@ Para integrar um provedor real, substitua a implementacao de `authMock` mantendo
 - Respostas JSON sao parseadas automaticamente.
 - Falhas geram `ApiError` com mensagem, status e payload.
 
-O servidor local em `server/index.js` so oferece `GET /api/health`. Ele e um placeholder para desenvolvimento e nao substitui um backend de producao.
+O servidor local em `src/index.js` so oferece `GET /api/health`. Ele e um placeholder para desenvolvimento e nao substitui um backend de producao.
 
 ## 7. Backend planejado
 
@@ -142,8 +142,7 @@ Stack planejada:
 Organizacao prevista:
 
 ```text
-server/
-  index.js                 entrada temporaria atual
+server/                    estrutura prevista para o backend de producao
   config/
   http/
     routes/
@@ -169,7 +168,7 @@ server/
   tests/
 ```
 
-A migracao incremental deve preservar primeiro `GET /api/health`, depois extrair rotas, controllers, servicos e repositorios por modulo. O `server/index.js` atual continua sendo o bootstrap enquanto o backend real nao for implementado.
+A migracao incremental deve preservar primeiro `GET /api/health`, depois extrair rotas, controllers, servicos e repositorios por modulo. O `src/index.js` atual continua sendo o bootstrap enquanto o backend real nao for implementado.
 
 ## 7. Configuracao e estilos
 
@@ -272,7 +271,7 @@ src/
   services/            Cliente HTTP e autenticacao mock
   styles/              CSS global e tema
 public/                Arquivos copiados diretamente para dist/
-server/                Backend Node atual e estrutura NestJS planejada
+src/index.js            Backend Node atual; estrutura NestJS sera definida na implementacao
 DOCS/                  Documentacao tecnica
 ```
 

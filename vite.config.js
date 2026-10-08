@@ -16,11 +16,10 @@ export default defineConfig({
     },
   },
   server: {
-    // `/api/*` é encaminhado para o back-end local (server/index.js)
+    // `/api/*` é encaminhado para o servidor local, por exemplo para o health check.
     proxy: {
       '/api': {
         target: apiTarget,
-        ws: true,
       },
     },
     watch: {
@@ -32,7 +31,6 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: apiTarget,
-        ws: true,
       },
     },
   },

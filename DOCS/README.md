@@ -34,8 +34,8 @@ O CodeVance Tech é um site institucional responsivo para apresentar serviços d
 - A página principal é pública e está em `src/pages/Home.jsx`.
 - O fluxo de autenticação está estruturado, mas `src/services/auth-mock.js` ainda rejeita login, cadastro, reset de senha e OAuth com erro de configuração. Ele não autentica usuários reais.
 - `src/services/api.js` é um cliente HTTP genérico preparado para um backend futuro.
-- `server/index.js` implementa somente `GET /api/health`; as demais rotas retornam 404.
-- A estrutura de pastas de `server/` já está preparada para a migração incremental para NestJS com módulos de autenticação e Painel ADM.
+- `src/index.js` implementa somente `GET /api/health`; as demais rotas retornam 404.
+- A migração futura para NestJS deverá organizar módulos de autenticação e Painel ADM.
 - Os dados de planos, contato e identidade do site estão em `src/config/site.js`.
 - O build de produção deve ser servido a partir da branch `deploy`, nunca diretamente da branch `main`.
 

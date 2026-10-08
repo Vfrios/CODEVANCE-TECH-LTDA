@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   IconBrandWhatsapp,
   IconMessageCircle,
@@ -7,11 +7,10 @@ import {
   IconSparkles,
   IconX,
 } from "@tabler/icons-react";
-import { SITE, PLANOS, whatsappLink } from "@/config/site";
-import { getFallbackReply, getQuickReply } from "./chatbotFallback";
+import { SITE, PLANOS } from "@/config/site";
+import { createLocalReply } from "./chatbotResponses";
 
 const MINIMUM_TYPING_TIME_MS = 1000;
-const SOCKET_CONNECT_TIMEOUT_MS = 10000;
 
 const waitForMinimumTypingTime = async (startedAt) => {
   const remaining = MINIMUM_TYPING_TIME_MS - (Date.now() - startedAt);
@@ -20,6 +19,29 @@ const waitForMinimumTypingTime = async (startedAt) => {
   }
 };
 
+const createWhatsAppLink = (briefing) => {
+  const fields = [
+    ["Solução", briefing?.projectType],
+    ["Negócio/público", briefing?.business],
+    ["Objetivo", briefing?.goal],
+    ["Recursos desejados", briefing?.features],
+    ["Prazo desejado", briefing?.timeline],
+  ].filter(([, value]) => value?.trim());
+  const message = fields.length
+    ? `Olá! Gostaria de conversar com a equipe da ${SITE.companyName} sobre um orçamento.\n\nResumo do projeto:\n${fields
+        .map(([label, value]) => `• ${label}: ${value}`)
+        .join("\n")}`
+    : SITE.whatsappMessage;
+
+  return `https://wa.me/${SITE.whatsappNumber}?text=${encodeURIComponent(message)}`;
+};
+
+const isContactSuggestion = (suggestion) =>
+  /\b(whatsapp|atendente|humano|pessoa|falar com a equipe|conversar com a equipe|falar com algu[eé]m|conversar com algu[eé]m|contato)\b/i.test(suggestion);
+
+/** @typedef {{ id: string, role: "user" | "assistant", text: string, suggestions?: string[] }} ChatMessage */
+
+/** @returns {ChatMessage} */
 const makeGreeting = () => ({
   id: "greeting",
   role: "assistant",
@@ -37,90 +59,11 @@ export default function ChatAssistant() {
   const [messages, setMessages] = useState([makeGreeting()]);
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [socketReady, setSocketReady] = useState(false);
   const [show, setShow] = useState(false);
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
-  const conversationRef = useRef([]);
-  const socketRef = useRef(null);
-  const pendingRequestRef = useRef(null);
-  const socketCleanupRef = useRef(null);
-
-  const connectSocket = useCallback(() => {
-    const existingSocket = socketRef.current;
-    if (
-      existingSocket &&
-      [WebSocket.CONNECTING, WebSocket.OPEN].includes(existingSocket.readyState)
-    ) {
-      return existingSocket;
-    }
-
-    let socket;
-    try {
-      const apiUrl = new URL(import.meta.env.VITE_API_URL || window.location.origin, window.location.href);
-      apiUrl.protocol = apiUrl.protocol === "https:" ? "wss:" : "ws:";
-      apiUrl.pathname = "/api/chat";
-      apiUrl.search = "";
-      apiUrl.hash = "";
-      socket = new WebSocket(apiUrl);
-      socketRef.current = socket;
-    } catch (error) {
-      console.error("[chat] Não foi possível iniciar a conexão:", error);
-      setSocketReady(false);
-      return null;
-    }
-
-    const rejectPendingRequest = (message) => {
-      const pending = pendingRequestRef.current;
-      if (!pending) return;
-      clearTimeout(pending.timeout);
-      pendingRequestRef.current = null;
-      pending.reject(new Error(message));
-    };
-
-    const onOpen = () => setSocketReady(true);
-    const onMessage = (event) => {
-      let data;
-      try {
-        data = JSON.parse(event.data);
-      } catch {
-        rejectPendingRequest("Resposta inválida.");
-        return;
-      }
-
-      const pending = pendingRequestRef.current;
-      if (!pending || data.requestId !== pending.requestId) return;
-      clearTimeout(pending.timeout);
-      pendingRequestRef.current = null;
-      if (data.type === "reply") pending.resolve(data);
-      else pending.reject(new Error(data.message || "Assistente indisponível."));
-    };
-    const onError = () => {
-      setSocketReady(false);
-      rejectPendingRequest("Conexão indisponível.");
-    };
-    const onClose = () => {
-      setSocketReady(false);
-      rejectPendingRequest("Conexão encerrada.");
-      if (socketRef.current === socket) socketRef.current = null;
-    };
-    const cleanup = () => {
-      rejectPendingRequest("Conversa encerrada.");
-      socket.removeEventListener("open", onOpen);
-      socket.removeEventListener("message", onMessage);
-      socket.removeEventListener("error", onError);
-      socket.removeEventListener("close", onClose);
-      if (socketRef.current === socket) socketRef.current = null;
-      socket.close();
-    };
-
-    socket.addEventListener("open", onOpen);
-    socket.addEventListener("message", onMessage);
-    socket.addEventListener("error", onError);
-    socket.addEventListener("close", onClose);
-    socketCleanupRef.current = cleanup;
-    return socket;
-  }, []);
+  const briefingRef = useRef(null);
+  const currentWhatsAppLink = createWhatsAppLink(briefingRef.current);
 
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 300);
@@ -139,16 +82,6 @@ export default function ChatAssistant() {
 
   useEffect(() => {
     if (!isOpen) return undefined;
-    connectSocket();
-    return () => {
-      socketCleanupRef.current?.();
-      socketCleanupRef.current = null;
-      setSocketReady(false);
-    };
-  }, [connectSocket, isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return undefined;
     inputRef.current?.focus();
     const onKeyDown = (event) => {
       if (event.key === "Escape") setIsOpen(false);
@@ -157,127 +90,40 @@ export default function ChatAssistant() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isOpen]);
 
-  const requestAssistant = useCallback(async (contents) => {
-    let socket = connectSocket();
-    if (!socket) throw new Error("Conexão indisponível.");
-
-    if (socket.readyState === WebSocket.CONNECTING) {
-      await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          cleanup();
-          reject(new Error("Tempo limite para conectar."));
-        }, SOCKET_CONNECT_TIMEOUT_MS);
-        const onOpen = () => {
-          cleanup();
-          resolve();
-        };
-        const onFailure = () => {
-          cleanup();
-          reject(new Error("Conexão indisponível."));
-        };
-        const cleanup = () => {
-          clearTimeout(timeout);
-          socket.removeEventListener("open", onOpen);
-          socket.removeEventListener("error", onFailure);
-          socket.removeEventListener("close", onFailure);
-        };
-        socket.addEventListener("open", onOpen);
-        socket.addEventListener("error", onFailure);
-        socket.addEventListener("close", onFailure);
-      });
-      socket = socketRef.current;
-    }
-
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-      throw new Error("Conexão indisponível.");
-    }
-
-    return new Promise((resolve, reject) => {
-      const requestId = crypto.randomUUID();
-      const timeout = setTimeout(() => {
-        if (pendingRequestRef.current?.requestId !== requestId) return;
-        pendingRequestRef.current = null;
-        reject(new Error("O assistente demorou para responder."));
-      }, 50_000);
-      pendingRequestRef.current = { requestId, resolve, reject, timeout };
-
-      try {
-        socket.send(JSON.stringify({ requestId, contents }));
-      } catch (error) {
-        clearTimeout(timeout);
-        pendingRequestRef.current = null;
-        reject(error);
-      }
-    });
-  }, [connectSocket]);
-
-  const sendMessage = async (text = draft, { isQuickReply = false } = {}) => {
+  const sendMessage = async (text = draft) => {
     const question = text.trim();
     if (!question || isSending) return;
 
+    if (isContactSuggestion(question)) {
+      window.open(
+        createWhatsAppLink(briefingRef.current),
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
+
     const startedAt = Date.now();
+    /** @type {ChatMessage} */
     const userMessage = { id: crypto.randomUUID(), role: "user", text: question };
-    const nextConversation = isQuickReply
-      ? conversationRef.current
-      : [...conversationRef.current, { role: "user", parts: [{ text: question }] }].slice(-12);
-    if (!isQuickReply) conversationRef.current = nextConversation;
     setMessages((current) => [...current, userMessage]);
     setDraft("");
     setIsSending(true);
 
-    if (isQuickReply) {
-      const { reply, suggestions } = getQuickReply(question, { SITE, PLANOS });
-      await waitForMinimumTypingTime(startedAt);
-      setMessages((current) => [
-        ...current,
-        { id: crypto.randomUUID(), role: "assistant", text: reply, suggestions },
-      ]);
-      setIsSending(false);
-      inputRef.current?.focus();
-      return;
-    }
-
     try {
-      const data = await requestAssistant(nextConversation);
-      if (
-        typeof data.reply !== "string" ||
-        !data.reply.trim() ||
-        !Array.isArray(data.suggestions) ||
-        data.suggestions.length === 0
-      ) {
-        throw new Error("O assistente retornou uma resposta inválida.");
-      }
-
-      const reply = data.reply.trim();
+      const result = createLocalReply(question, {
+        SITE,
+        PLANOS,
+        briefing: briefingRef.current,
+      });
+      briefingRef.current = result.briefing;
       await waitForMinimumTypingTime(startedAt);
-      conversationRef.current = [
-        ...nextConversation,
-        { role: "model", parts: [{ text: reply }] },
-      ].slice(-12);
       setMessages((current) => [
         ...current,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: reply,
-          suggestions: data.suggestions,
-        },
-      ]);
-    } catch (error) {
-      console.error("[chat] Pergunta encaminhada para a resposta local:", error);
-      const { reply, suggestions } = getFallbackReply(question, { SITE, PLANOS });
-      await waitForMinimumTypingTime(startedAt);
-      conversationRef.current = [
-        ...nextConversation,
-        { role: "model", parts: [{ text: reply }] },
-      ].slice(-12);
-      setMessages((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          text: reply,
-          suggestions,
+          text: result.reply,
+          suggestions: result.suggestions,
         },
       ]);
     } finally {
@@ -312,7 +158,7 @@ export default function ChatAssistant() {
               </h2>
               <p className="mt-0.5 flex items-center gap-1.5 text-xs text-green-100/80">
                 <span className="h-2 w-2 rounded-full bg-green-400" />
-                {socketReady ? "Assistente conectado" : "Conectando ao assistente..."}
+                Atendimento inicial disponível
               </p>
             </div>
             <button
@@ -356,7 +202,17 @@ export default function ChatAssistant() {
                             key={suggestion}
                             type="button"
                             disabled={isSending}
-                            onClick={() => sendMessage(suggestion, { isQuickReply: true })}
+                            onClick={() => {
+                              if (isContactSuggestion(suggestion)) {
+                                window.open(
+                                  createWhatsAppLink(briefingRef.current),
+                                  "_blank",
+                                  "noopener,noreferrer"
+                                );
+                                return;
+                              }
+                              sendMessage(suggestion);
+                            }}
                             className="min-h-10 min-w-0 max-w-full flex-[1_1_145px] whitespace-normal break-words rounded-2xl border border-green-400/25 bg-green-400/5 px-3 py-2 text-left text-xs font-medium leading-snug text-green-200 transition hover:bg-green-400/15 disabled:opacity-50"
                           >
                             {suggestion}
@@ -423,7 +279,7 @@ export default function ChatAssistant() {
                 Assistente virtual
               </span>
               <a
-                href={whatsappLink}
+                href={currentWhatsAppLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-green-300 transition hover:text-green-200"

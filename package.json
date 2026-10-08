@@ -17,9 +17,9 @@
   "scripts": {
     "dev": "concurrently -k -n front,back -c cyan,green \"pnpm run dev:front\" \"pnpm run dev:back\"",
     "dev:front": "vite",
-    "dev:back": "node --watch server/index.js",
-    "start": "node server/index.js",
-    "start:back": "node server/index.js",
+    "dev:back": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "start:back": "node src/index.js",
     "build": "vite build",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
@@ -62,7 +62,6 @@
     "recharts": "^2.15.4",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.171.0",
-    "ws": "^8.22.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

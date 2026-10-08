@@ -15,22 +15,9 @@ O frontend ficará disponível em `http://localhost:5173`. O comando `pnpm dev` 
 
 ## Deploy (Hostinger + GitHub)
 
-Para publicar o app completo como aplicação Node.js na Hostinger, conecte o repositório GitHub e use estas configurações:
+O site e o chatbot funcionam como frontend estático. Na Hostinger, use o framework Vite, a branch `main`, Node.js `22.x` para o build, o comando `pnpm install --frozen-lockfile && pnpm build` e a pasta de saída `dist`. Não é necessário configurar API, WebSocket ou chave de IA para o chatbot.
 
-- Configuração predefinida: Vite ou personalizada/Node.js (não Create React App)
-- Branch: `main` (a branch `deploy` contém somente o build estático)
-- Versão do Node.js: `22.x`
-- Diretório raiz: `./`
-- Instalação: `corepack enable && pnpm install --frozen-lockfile`
-- Build: `pnpm build`
-- Diretório de saída, se solicitado: `dist`
-- Comando de inicialização: `pnpm start`
-
-Adicione `GEMINI_API_KEY` nas variáveis de ambiente da aplicação Hostinger para habilitar as respostas do chat. `GEMINI_MODEL` é opcional. Não configure `PORT` manualmente: a aplicação usa a porta fornecida pela plataforma. Mantenha `VITE_API_URL` vazio para frontend, API e WebSocket usarem o mesmo domínio. Confirme que o plano permite conexões WebSocket persistentes.
-
-O servidor Node atende o site compilado, as rotas de API e `/api/chat` via WebSocket. O workflow do GitHub Actions ainda gera a branch `deploy` com arquivos estáticos para hospedagem Apache, mas essa branch não deve ser usada na configuração de aplicação Node.js.
-
-Para confirmar que o backend está ativo após o deploy, abra `/api/health` no domínio: deve retornar JSON com `"status":"ok"`. Se retornar a página HTML do site, o domínio está servindo apenas os arquivos estáticos; configure a aplicação para iniciar com `pnpm start` e encaminhar `/api/*` e WebSocket para esse processo Node.
+O workflow do GitHub Actions também gera a branch `deploy` com os arquivos estáticos para hospedagem Apache. O servidor Node opcional (`pnpm start`) serve o build e oferece apenas `/api/health`; ele não participa das respostas do chatbot.
 
 
 # CodeVance Tech — site institucional
@@ -47,14 +34,13 @@ Requer Node 20+ e [pnpm](https://pnpm.io) 10+ (`corepack enable` ativa o pnpm au
 pnpm install
 pnpm dev           # sobe front (http://localhost:5173) e back (http://localhost:3001) juntos
 pnpm dev:front     # só o front (Vite)
-pnpm dev:back      # só o back (server/index.js, com --watch)
+pnpm dev:back      # só o back (src/index.js, com --watch)
 pnpm build         # build de produção em ./dist
-pnpm preview       # serve o build localmente (requer o backend em outra janela)
+pnpm preview       # serve o build localmente
 pnpm lint          # ESLint
 ```
 
-O Vite encaminha `/api/*` para o back-end local, tanto em `pnpm dev` quanto em `pnpm preview`, então o front chama `/api/...` sem se preocupar com portas. Ao usar `pnpm preview`, inicie também `pnpm dev:back` em outra janela.
-O backend em `server/index.js` expõe `GET /api/health` e um WebSocket persistente em `/api/chat`. O chat usa a API Gemini no servidor: a chave nunca é enviada ao navegador. O contexto editável está em `server/chatbot-context.md`; o servidor seleciona localmente até três seções relevantes por pergunta e mantém as seções em cache na memória, recarregando o arquivo quando ele muda. Isso reduz o contexto enviado ao modelo; não é o cache de tokens do provedor. As opções clicáveis do chat usam respostas predefinidas no frontend, sem consumir chamadas ou tokens de IA; somente perguntas digitadas são enviadas ao Gemini. Enquanto prepara uma resposta, o chat mostra a animação de digitação por pelo menos um segundo.
+O Vite encaminha `/api/*` para o servidor local durante `pnpm dev` e `pnpm preview`, para desenvolvimento e health check. O chatbot não usa API, WebSocket ou provedor de IA: perguntas digitadas e opções clicáveis são respondidas localmente por regras e conteúdo predefinido, sem consumo de tokens. O fluxo de briefing coleta informações do projeto progressivamente. Enquanto prepara uma resposta, o chat mostra a animação de digitação por pelo menos um segundo.
 
 Variáveis de ambiente opcionais (arquivo `.env.local`, nunca versionado):
 
@@ -64,13 +50,8 @@ Variáveis de ambiente opcionais (arquivo `.env.local`, nunca versionado):
 | `PORT` | porta HTTP injetada pela hospedagem; tem prioridade sobre `API_PORT` |
 | `API_PORT` | porta do backend local (padrão `3001`, usada quando `PORT` não está definida) |
 | `VITE_APP_ID` | id do app, lido por `src/lib/app-params.js` (só usado pela página `OAuthConsent`) |
-| `GEMINI_API_KEY` | chave da API Gemini, lida somente pelo backend (defina no `.env` local ou nas variáveis do servidor) |
-| `GEMINI_MODEL` | modelo Gemini principal usado pelo chat (padrão: `gemini-flash-lite-latest`) |
-| `GEMINI_FALLBACK_MODEL` | modelo alternativo usado se o principal estiver temporariamente indisponível ou atingir limites (padrão: `gemini-3.5-flash-lite`) |
 
-Edite `server/chatbot-context.md` para atualizar fatos, serviços, etapas e políticas do assistente. Organize o conteúdo em seções `##` e mantenha a linha `Palavras-chave:` em cada seção para ajudar a busca local a selecionar o contexto mais relevante. Preços e itens dos planos vêm de `src/config/site.js` para evitar duplicação.
-
-Se o Gemini estiver indisponível, o chat continua respondendo localmente às perguntas mais comuns sobre serviços, preços e prazos, com opções rápidas contextuais e acesso direto ao WhatsApp da equipe.
+Edite `src/features/layout/chatbot-context.md` para atualizar os fatos e orientações usados nas respostas locais. Organize o conteúdo em seções `##` e mantenha uma linha `Palavras-chave:` em cada seção. Como o arquivo é incluído no build do Vite, publique um novo build após editá-lo. Preços e itens dos planos vêm de `src/config/site.js` para evitar duplicação.
 
 ## Estrutura de pastas
 
@@ -94,7 +75,7 @@ src/
 └── utils/          index.ts (createPageUrl)
 ```
 
-`server/` (na raiz do projeto) contém o back-end local de desenvolvimento.
+`src/index.js` contém o servidor Node local de desenvolvimento e o endpoint de health check.
 
 Alias: `@/` aponta para `src/` (configurado em `vite.config.js` e `jsconfig.json`).
 Dentro de uma feature use imports relativos (`./Logo`); entre features use o barrel (`@/features/layout`).
@@ -141,7 +122,7 @@ Toda a autenticação passa por **um único arquivo**: `src/services/auth-mock.j
 - `App.jsx`, `main.jsx` e o novo `router.jsx` e `providers.jsx` foram para `app/`; `index.css` foi para `styles/`.
 - Cada feature ganhou um `index.js`; `pages/Home.jsx` importa de `@/features/home` e `@/features/layout`.
 - SDK do Base44 removido: `src/api/base44Client.js` apagado, `@base44/sdk` e `@base44/vite-plugin` saíram do `package.json`, a pasta `base44/`, `AGENTS.md` e `CLAUDE.md` foram removidos, e o alias `@` agora está declarado no `vite.config.js`.
-- Gerenciador migrado de npm para pnpm (`packageManager`, scripts `dev`/`dev:front`/`dev:back` com `concurrently`, proxy `/api` no Vite e back placeholder em `server/`).
+- Gerenciador migrado de npm para pnpm (`packageManager`, scripts `dev`/`dev:front`/`dev:back` com `concurrently`, proxy `/api` no Vite e backend placeholder em `src/index.js`).
 - `framer-motion` substituído por `motion` (imports `motion/react`).
 - `components/ui/*` (shadcn) intocado.
 - Lógica, textos, cores, preços e CSS preservados.

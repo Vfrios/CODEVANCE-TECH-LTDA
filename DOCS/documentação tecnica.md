@@ -22,7 +22,7 @@
 
 ## 1.1 Visão Geral
 
-O backend é a camada que sustenta autenticação, orçamentos, chatbot, catálogo e billing. Hoje o projeto tem apenas `server/index.js` com `GET /api/health`. Este documento define a arquitetura do backend real.
+O backend é a camada que sustenta autenticação, orçamentos, chatbot, catálogo e billing. Hoje o projeto tem apenas `src/index.js` com `GET /api/health`. Este documento define a arquitetura do backend real.
 
 ## 1.2 Stack
 
@@ -41,8 +41,7 @@ O backend é a camada que sustenta autenticação, orçamentos, chatbot, catálo
 ## 1.3 Estrutura de Pastas
 
 ```
-server/
-  index.js                 (bootstrap temporario atual)
+server/                    (estrutura planejada para o backend de producao)
   config/
   http/
     routes/
