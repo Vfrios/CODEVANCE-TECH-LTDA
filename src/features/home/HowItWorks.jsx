@@ -143,7 +143,7 @@ export default function HowItWorks() {
                   data-step
                   className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                     p.destaque
-                      ? "bg-[#0B3D2E]/40 border-[#22C55E]/40"
+                      ? "bg-[#0C1E18] border-[#22C55E]/40"
                       : `bg-[#141414] border-forest-soft ${
                           isActive ? "border-[#22C55E]/50" : ""
                         }`

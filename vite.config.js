@@ -17,7 +17,10 @@ export default defineConfig({
   server: {
     // `/api/*` é encaminhado para o back-end local (server/index.js)
     proxy: {
-      '/api': `http://localhost:${process.env.API_PORT || 3001}`,
+      '/api': {
+        target: `http://localhost:${process.env.API_PORT || 3001}`,
+        ws: true,
+      },
     },
     watch: {
       usePolling: true,

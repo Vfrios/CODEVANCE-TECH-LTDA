@@ -15,10 +15,20 @@ O frontend ficará disponível em `http://localhost:5173`. O comando `pnpm dev` 
 
 ## Deploy (Hostinger + GitHub)
 
-Cada push na branch `main` aciona o GitHub Actions, que instala as dependências, faz o build e publica somente o conteúdo de `dist/` na branch `deploy`. A Hostinger copia a branch `deploy` para `public_html` usando o recurso de Git genérico.
+Para publicar o app completo como aplicação Node.js na Hostinger, conecte o repositório GitHub e use estas configurações:
 
-O arquivo `public/.htaccess` é incluído no build e garante o fallback das rotas do React Router para `index.html` no Apache.
+- Configuração predefinida: Vite ou personalizada/Node.js (não Create React App)
+- Branch: `main` (a branch `deploy` contém somente o build estático)
+- Versão do Node.js: `22.x`
+- Diretório raiz: `./`
+- Instalação: `corepack enable && pnpm install --frozen-lockfile`
+- Build: `pnpm build`
+- Diretório de saída, se solicitado: `dist`
+- Comando de inicialização: `pnpm start`
 
+Adicione `GEMINI_API_KEY` nas variáveis de ambiente da aplicação Hostinger para habilitar as respostas do chat. `GEMINI_MODEL` é opcional. Não configure `PORT` manualmente: a aplicação usa a porta fornecida pela plataforma. Mantenha `VITE_API_URL` vazio para frontend, API e WebSocket usarem o mesmo domínio. Confirme que o plano permite conexões WebSocket persistentes.
+
+O servidor Node atende o site compilado, as rotas de API e `/api/chat` via WebSocket. O workflow do GitHub Actions ainda gera a branch `deploy` com arquivos estáticos para hospedagem Apache, mas essa branch não deve ser usada na configuração de aplicação Node.js.
 
 
 # CodeVance Tech — site institucional
@@ -42,15 +52,20 @@ pnpm lint          # ESLint
 ```
 
 O Vite encaminha `/api/*` para o back-end local, então o front chama `/api/...` sem se preocupar com portas.
-O back em `server/index.js` é só um **placeholder** (expõe `GET /api/health`); substitua pelo seu backend real.
+O backend em `server/index.js` expõe `GET /api/health` e um WebSocket persistente em `/api/chat`. O chat usa a API Gemini no servidor: a chave nunca é enviada ao navegador. O Gemini gera cada resposta e três sugestões contextuais para a próxima interação.
 
 Variáveis de ambiente opcionais (arquivo `.env.local`, nunca versionado):
 
 | Variável | Uso |
 | --- | --- |
 | `VITE_API_URL` | URL base do backend usada por `src/services/api.js` (vazio = mesma origem, via proxy do Vite) |
-| `API_PORT` | porta do back-end local (padrão `3001`) |
+| `PORT` | porta HTTP injetada pela hospedagem; tem prioridade sobre `API_PORT` |
+| `API_PORT` | porta do backend local (padrão `3001`, usada quando `PORT` não está definida) |
 | `VITE_APP_ID` | id do app, lido por `src/lib/app-params.js` (só usado pela página `OAuthConsent`) |
+| `GEMINI_API_KEY` | chave da API Gemini, lida somente pelo backend (defina no `.env` local ou nas variáveis do servidor) |
+| `GEMINI_MODEL` | modelo Gemini usado pelo chat (padrão: `gemini-3.8-flash`) |
+
+Se o Gemini estiver indisponível, o chat continua respondendo localmente às perguntas mais comuns sobre serviços, preços e prazos, com opções rápidas contextuais e acesso direto ao WhatsApp da equipe.
 
 ## Estrutura de pastas
 

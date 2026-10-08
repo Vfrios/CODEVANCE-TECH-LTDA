@@ -11,7 +11,7 @@ import {
   About,
   Contact,
 } from "@/features/home";
-import { Navbar, Footer, WhatsAppFloat } from "@/features/layout";
+import { Navbar, Footer, ChatAssistant } from "@/features/layout";
 
 export default function Home() {
   useScrollAnimations();
@@ -32,7 +32,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
-      <WhatsAppFloat />
+      <ChatAssistant />
     </div>
   );
 }
