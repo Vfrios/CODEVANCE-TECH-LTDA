@@ -30,6 +30,8 @@ Adicione `GEMINI_API_KEY` nas variáveis de ambiente da aplicação Hostinger pa
 
 O servidor Node atende o site compilado, as rotas de API e `/api/chat` via WebSocket. O workflow do GitHub Actions ainda gera a branch `deploy` com arquivos estáticos para hospedagem Apache, mas essa branch não deve ser usada na configuração de aplicação Node.js.
 
+Para confirmar que o backend está ativo após o deploy, abra `/api/health` no domínio: deve retornar JSON com `"status":"ok"`. Se retornar a página HTML do site, o domínio está servindo apenas os arquivos estáticos; configure a aplicação para iniciar com `pnpm start` e encaminhar `/api/*` e WebSocket para esse processo Node.
+
 
 # CodeVance Tech — site institucional
 

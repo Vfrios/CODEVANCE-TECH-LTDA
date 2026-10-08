@@ -166,7 +166,7 @@ export default function ChatAssistant() {
         const timeout = setTimeout(() => {
           cleanup();
           reject(new Error("Tempo limite para conectar."));
-        }, 4_000);
+        }, SOCKET_CONNECT_TIMEOUT_MS);
         const onOpen = () => {
           cleanup();
           resolve();
@@ -271,7 +271,6 @@ export default function ChatAssistant() {
         ...nextConversation,
         { role: "model", parts: [{ text: reply }] },
       ].slice(-12);
-      setFallbackActive(true);
       setMessages((current) => [
         ...current,
         {
