@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   IconBrandWhatsapp,
-  IconLoader2,
   IconMessageCircle,
   IconRobot,
   IconSend,
@@ -9,7 +8,17 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { SITE, PLANOS, whatsappLink } from "@/config/site";
-import { getFallbackReply } from "./chatbotFallback";
+import { getFallbackReply, getQuickReply } from "./chatbotFallback";
+
+const MINIMUM_TYPING_TIME_MS = 1000;
+const SOCKET_CONNECT_TIMEOUT_MS = 10000;
+
+const waitForMinimumTypingTime = async (startedAt) => {
+  const remaining = MINIMUM_TYPING_TIME_MS - (Date.now() - startedAt);
+  if (remaining > 0) {
+    await new Promise((resolve) => setTimeout(resolve, remaining));
+  }
+};
 
 const makeGreeting = () => ({
   id: "greeting",
@@ -28,30 +37,24 @@ export default function ChatAssistant() {
   const [messages, setMessages] = useState([makeGreeting()]);
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [fallbackActive, setFallbackActive] = useState(false);
   const [socketReady, setSocketReady] = useState(false);
   const [show, setShow] = useState(false);
-  const endOfMessagesRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const conversationRef = useRef([]);
   const socketRef = useRef(null);
   const pendingRequestRef = useRef(null);
+  const socketCleanupRef = useRef(null);
 
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 300);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const connectSocket = useCallback(() => {
+    const existingSocket = socketRef.current;
+    if (
+      existingSocket &&
+      [WebSocket.CONNECTING, WebSocket.OPEN].includes(existingSocket.readyState)
+    ) {
+      return existingSocket;
+    }
 
-  useEffect(() => {
-    if (isOpen) endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [isOpen, messages, isSending]);
-
-  useEffect(() => {
-    if (!isOpen) return undefined;
-
-    let active = true;
     let socket;
     try {
       const apiUrl = new URL(import.meta.env.VITE_API_URL || window.location.origin, window.location.href);
@@ -61,9 +64,10 @@ export default function ChatAssistant() {
       apiUrl.hash = "";
       socket = new WebSocket(apiUrl);
       socketRef.current = socket;
-    } catch {
+    } catch (error) {
+      console.error("[chat] Não foi possível iniciar a conexão:", error);
       setSocketReady(false);
-      return undefined;
+      return null;
     }
 
     const rejectPendingRequest = (message) => {
@@ -74,15 +78,13 @@ export default function ChatAssistant() {
       pending.reject(new Error(message));
     };
 
-    const onOpen = () => {
-      if (active) setSocketReady(true);
-    };
+    const onOpen = () => setSocketReady(true);
     const onMessage = (event) => {
       let data;
       try {
         data = JSON.parse(event.data);
       } catch {
-        rejectPendingRequest("O assistente retornou uma resposta inválida.");
+        rejectPendingRequest("Resposta inválida.");
         return;
       }
 
@@ -91,35 +93,59 @@ export default function ChatAssistant() {
       clearTimeout(pending.timeout);
       pendingRequestRef.current = null;
       if (data.type === "reply") pending.resolve(data);
-      else pending.reject(new Error(data.message || "O assistente está indisponível."));
+      else pending.reject(new Error(data.message || "Assistente indisponível."));
     };
     const onError = () => {
-      if (active) setSocketReady(false);
-      rejectPendingRequest("Não foi possível conectar ao assistente.");
+      setSocketReady(false);
+      rejectPendingRequest("Conexão indisponível.");
     };
     const onClose = () => {
-      if (active) setSocketReady(false);
-      rejectPendingRequest("A conexão com o assistente foi encerrada.");
+      setSocketReady(false);
+      rejectPendingRequest("Conexão encerrada.");
       if (socketRef.current === socket) socketRef.current = null;
+    };
+    const cleanup = () => {
+      rejectPendingRequest("Conversa encerrada.");
+      socket.removeEventListener("open", onOpen);
+      socket.removeEventListener("message", onMessage);
+      socket.removeEventListener("error", onError);
+      socket.removeEventListener("close", onClose);
+      if (socketRef.current === socket) socketRef.current = null;
+      socket.close();
     };
 
     socket.addEventListener("open", onOpen);
     socket.addEventListener("message", onMessage);
     socket.addEventListener("error", onError);
     socket.addEventListener("close", onClose);
+    socketCleanupRef.current = cleanup;
+    return socket;
+  }, []);
 
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "auto" });
+    }
+  }, [isOpen, messages, isSending]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    connectSocket();
     return () => {
-      active = false;
-      socket.removeEventListener("open", onOpen);
-      socket.removeEventListener("message", onMessage);
-      socket.removeEventListener("error", onError);
-      socket.removeEventListener("close", onClose);
-      rejectPendingRequest("A conversa foi fechada.");
-      socket.close();
-      if (socketRef.current === socket) socketRef.current = null;
+      socketCleanupRef.current?.();
+      socketCleanupRef.current = null;
       setSocketReady(false);
     };
-  }, [isOpen]);
+  }, [connectSocket, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -132,14 +158,14 @@ export default function ChatAssistant() {
   }, [isOpen]);
 
   const requestAssistant = useCallback(async (contents) => {
-    let socket = socketRef.current;
-    if (!socket) throw new Error("A conexão com o assistente não está pronta.");
+    let socket = connectSocket();
+    if (!socket) throw new Error("Conexão indisponível.");
 
     if (socket.readyState === WebSocket.CONNECTING) {
       await new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           cleanup();
-          reject(new Error("A conexão com o assistente demorou para abrir."));
+          reject(new Error("Tempo limite para conectar."));
         }, 4_000);
         const onOpen = () => {
           cleanup();
@@ -147,7 +173,7 @@ export default function ChatAssistant() {
         };
         const onFailure = () => {
           cleanup();
-          reject(new Error("Não foi possível conectar ao assistente."));
+          reject(new Error("Conexão indisponível."));
         };
         const cleanup = () => {
           clearTimeout(timeout);
@@ -163,7 +189,7 @@ export default function ChatAssistant() {
     }
 
     if (!socket || socket.readyState !== WebSocket.OPEN) {
-      throw new Error("A conexão com o assistente não está disponível.");
+      throw new Error("Conexão indisponível.");
     }
 
     return new Promise((resolve, reject) => {
@@ -172,7 +198,7 @@ export default function ChatAssistant() {
         if (pendingRequestRef.current?.requestId !== requestId) return;
         pendingRequestRef.current = null;
         reject(new Error("O assistente demorou para responder."));
-      }, 18_000);
+      }, 50_000);
       pendingRequestRef.current = { requestId, resolve, reject, timeout };
 
       try {
@@ -183,18 +209,33 @@ export default function ChatAssistant() {
         reject(error);
       }
     });
-  }, []);
+  }, [connectSocket]);
 
-  const sendMessage = async (text = draft) => {
+  const sendMessage = async (text = draft, { isQuickReply = false } = {}) => {
     const question = text.trim();
     if (!question || isSending) return;
 
+    const startedAt = Date.now();
     const userMessage = { id: crypto.randomUUID(), role: "user", text: question };
-    const nextConversation = [...conversationRef.current, { role: "user", parts: [{ text: question }] }].slice(-12);
-    conversationRef.current = nextConversation;
+    const nextConversation = isQuickReply
+      ? conversationRef.current
+      : [...conversationRef.current, { role: "user", parts: [{ text: question }] }].slice(-12);
+    if (!isQuickReply) conversationRef.current = nextConversation;
     setMessages((current) => [...current, userMessage]);
     setDraft("");
     setIsSending(true);
+
+    if (isQuickReply) {
+      const { reply, suggestions } = getQuickReply(question, { SITE, PLANOS });
+      await waitForMinimumTypingTime(startedAt);
+      setMessages((current) => [
+        ...current,
+        { id: crypto.randomUUID(), role: "assistant", text: reply, suggestions },
+      ]);
+      setIsSending(false);
+      inputRef.current?.focus();
+      return;
+    }
 
     try {
       const data = await requestAssistant(nextConversation);
@@ -208,11 +249,11 @@ export default function ChatAssistant() {
       }
 
       const reply = data.reply.trim();
+      await waitForMinimumTypingTime(startedAt);
       conversationRef.current = [
         ...nextConversation,
         { role: "model", parts: [{ text: reply }] },
       ].slice(-12);
-      setFallbackActive(false);
       setMessages((current) => [
         ...current,
         {
@@ -222,8 +263,10 @@ export default function ChatAssistant() {
           suggestions: data.suggestions,
         },
       ]);
-    } catch {
+    } catch (error) {
+      console.error("[chat] Pergunta encaminhada para a resposta local:", error);
       const { reply, suggestions } = getFallbackReply(question, { SITE, PLANOS });
+      await waitForMinimumTypingTime(startedAt);
       conversationRef.current = [
         ...nextConversation,
         { role: "model", parts: [{ text: reply }] },
@@ -234,7 +277,7 @@ export default function ChatAssistant() {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: `${reply}\n\nEstou no modo de respostas rápidas agora.`,
+          text: reply,
           suggestions,
         },
       ]);
@@ -270,11 +313,7 @@ export default function ChatAssistant() {
               </h2>
               <p className="mt-0.5 flex items-center gap-1.5 text-xs text-green-100/80">
                 <span className="h-2 w-2 rounded-full bg-green-400" />
-                {fallbackActive
-                  ? "Respostas rápidas disponíveis"
-                  : socketReady
-                    ? "Assistente conectado"
-                    : "Conectando ao assistente..."}
+                {socketReady ? "Assistente conectado" : "Conectando ao assistente..."}
               </p>
             </div>
             <button
@@ -288,7 +327,8 @@ export default function ChatAssistant() {
           </header>
 
           <div
-            className="flex-1 space-y-4 overflow-y-auto px-4 py-5"
+            ref={messagesContainerRef}
+            className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5"
             aria-live="polite"
             aria-relevant="additions text"
           >
@@ -317,7 +357,7 @@ export default function ChatAssistant() {
                             key={suggestion}
                             type="button"
                             disabled={isSending}
-                            onClick={() => sendMessage(suggestion)}
+                            onClick={() => sendMessage(suggestion, { isQuickReply: true })}
                             className="min-h-10 min-w-0 max-w-full flex-[1_1_145px] whitespace-normal break-words rounded-2xl border border-green-400/25 bg-green-400/5 px-3 py-2 text-left text-xs font-medium leading-snug text-green-200 transition hover:bg-green-400/15 disabled:opacity-50"
                           >
                             {suggestion}
@@ -330,12 +370,21 @@ export default function ChatAssistant() {
             ))}
 
             {isSending && (
-              <div className="flex items-center gap-2 text-sm text-gray-400" role="status">
-                <IconLoader2 size={16} className="animate-spin text-green-400" aria-hidden="true" />
-                Preparando uma resposta...
+              <div className="flex items-center gap-2" role="status" aria-label="Assistente digitando">
+                <span className="rounded-2xl rounded-bl-md border border-white/5 bg-[#1A211D] px-4 py-3">
+                  <span className="flex items-center gap-1">
+                    {[0, 1, 2].map((dot) => (
+                      <span
+                        key={dot}
+                        className="h-2 w-2 animate-bounce rounded-full bg-green-300"
+                        style={{ animationDelay: `${dot * 150}ms` }}
+                      />
+                    ))}
+                  </span>
+                </span>
+                <span className="sr-only">Assistente digitando...</span>
               </div>
             )}
-            <div ref={endOfMessagesRef} />
           </div>
 
           <div className="shrink-0 border-t border-white/10 px-3 pb-3 pt-3">

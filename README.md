@@ -47,12 +47,12 @@ pnpm dev           # sobe front (http://localhost:5173) e back (http://localhost
 pnpm dev:front     # só o front (Vite)
 pnpm dev:back      # só o back (server/index.js, com --watch)
 pnpm build         # build de produção em ./dist
-pnpm preview       # serve o build localmente
+pnpm preview       # serve o build localmente (requer o backend em outra janela)
 pnpm lint          # ESLint
 ```
 
-O Vite encaminha `/api/*` para o back-end local, então o front chama `/api/...` sem se preocupar com portas.
-O backend em `server/index.js` expõe `GET /api/health` e um WebSocket persistente em `/api/chat`. O chat usa a API Gemini no servidor: a chave nunca é enviada ao navegador. O Gemini gera cada resposta e três sugestões contextuais para a próxima interação.
+O Vite encaminha `/api/*` para o back-end local, tanto em `pnpm dev` quanto em `pnpm preview`, então o front chama `/api/...` sem se preocupar com portas. Ao usar `pnpm preview`, inicie também `pnpm dev:back` em outra janela.
+O backend em `server/index.js` expõe `GET /api/health` e um WebSocket persistente em `/api/chat`. O chat usa a API Gemini no servidor: a chave nunca é enviada ao navegador. O contexto editável está em `server/chatbot-context.md`; o servidor seleciona localmente até três seções relevantes por pergunta e mantém as seções em cache na memória, recarregando o arquivo quando ele muda. Isso reduz o contexto enviado ao modelo; não é o cache de tokens do provedor. As opções clicáveis do chat usam respostas predefinidas no frontend, sem consumir chamadas ou tokens de IA; somente perguntas digitadas são enviadas ao Gemini. Enquanto prepara uma resposta, o chat mostra a animação de digitação por pelo menos um segundo.
 
 Variáveis de ambiente opcionais (arquivo `.env.local`, nunca versionado):
 
@@ -63,7 +63,10 @@ Variáveis de ambiente opcionais (arquivo `.env.local`, nunca versionado):
 | `API_PORT` | porta do backend local (padrão `3001`, usada quando `PORT` não está definida) |
 | `VITE_APP_ID` | id do app, lido por `src/lib/app-params.js` (só usado pela página `OAuthConsent`) |
 | `GEMINI_API_KEY` | chave da API Gemini, lida somente pelo backend (defina no `.env` local ou nas variáveis do servidor) |
-| `GEMINI_MODEL` | modelo Gemini usado pelo chat (padrão: `gemini-3.8-flash`) |
+| `GEMINI_MODEL` | modelo Gemini principal usado pelo chat (padrão: `gemini-flash-lite-latest`) |
+| `GEMINI_FALLBACK_MODEL` | modelo alternativo usado se o principal estiver temporariamente indisponível ou atingir limites (padrão: `gemini-3.5-flash-lite`) |
+
+Edite `server/chatbot-context.md` para atualizar fatos, serviços, etapas e políticas do assistente. Organize o conteúdo em seções `##` e mantenha a linha `Palavras-chave:` em cada seção para ajudar a busca local a selecionar o contexto mais relevante. Preços e itens dos planos vêm de `src/config/site.js` para evitar duplicação.
 
 Se o Gemini estiver indisponível, o chat continua respondendo localmente às perguntas mais comuns sobre serviços, preços e prazos, com opções rápidas contextuais e acesso direto ao WhatsApp da equipe.
 

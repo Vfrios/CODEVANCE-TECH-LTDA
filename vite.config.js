@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const apiTarget = `http://localhost:${process.env.API_PORT || 3001}`
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -18,13 +19,21 @@ export default defineConfig({
     // `/api/*` é encaminhado para o back-end local (server/index.js)
     proxy: {
       '/api': {
-        target: `http://localhost:${process.env.API_PORT || 3001}`,
+        target: apiTarget,
         ws: true,
       },
     },
     watch: {
       usePolling: true,
       interval: 1000,
+    },
+  },
+  preview: {
+    proxy: {
+      '/api': {
+        target: apiTarget,
+        ws: true,
+      },
     },
   },
 });

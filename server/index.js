@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocket, WebSocketServer } from 'ws';
 import { SITE, PLANOS } from '../src/config/site.js';
+import { getRelevantContext } from './chatbot-context.js';
 
 const MAX_BODY_BYTES = 16_000;
 const MAX_HISTORY_ITEMS = 12;
@@ -33,15 +34,21 @@ const MIME_TYPES = {
   '.woff2': 'font/woff2',
 };
 
-const systemInstruction = `Você é o assistente virtual da ${SITE.companyName}, empresa de Belo Horizonte que cria sites, lojas virtuais, sistemas sob medida, automações e integrações.
-Responda sempre em português brasileiro, com cordialidade, clareza e objetividade. Ajude com dúvidas sobre serviços, orçamento, prazos e o processo de trabalho. Use somente as informações fornecidas abaixo; não invente funcionalidades, garantias, prazos, políticas ou preços. Quando faltarem informações, explique que o orçamento depende de uma conversa com a equipe. Não prometa que é uma pessoa. Se a pergunta estiver fora do escopo, diga isso com gentileza e ofereça encaminhamento para a equipe no WhatsApp (${SITE.whatsappNumber}).
-
-Serviços, planos e preços atuais:
-${JSON.stringify(PLANOS)}
-
-Fluxo de trabalho: ${SITE.companyName} entende os objetivos do cliente, define escopo e orçamento, desenvolve e acompanha o projeto. A cidade informada é ${SITE.city}.
+const systemInstruction = `Você é o assistente virtual da ${SITE.companyName}, empresa de ${SITE.city}.
+Responda em português brasileiro, com cordialidade, clareza e objetividade. Use somente as informações do contexto selecionado para a pergunta e o histórico da conversa; não invente funcionalidades, garantias, prazos, políticas ou preços. Quando faltarem informações, explique que o orçamento depende de uma conversa com a equipe. Não prometa que é uma pessoa. Se a pergunta estiver fora do escopo, ofereça encaminhamento para a equipe no WhatsApp (${SITE.whatsappNumber}).
 
 Retorne somente um objeto JSON com "reply" (resposta ao cliente em texto) e "suggestions" (exatamente três opções curtas de próxima pergunta ou ação, relevantes à resposta e distintas entre si). Não use markdown nem inclua propriedades adicionais.`;
+
+const makePlanContext = (category, plans, title) => ({
+  title,
+  content: plans
+    .map((plan) => `• ${plan.nome} — ${plan.preco}: ${plan.itens.join(', ')}`)
+    .join('\n'),
+  searchableText: `${title} ${plans.map((plan) => `${plan.nome} ${plan.preco} ${plan.itens.join(' ')}`).join(' ')}`,
+  keywords: category === 'sites'
+    ? ['site', 'sites', 'página', 'landing', 'loja', 'preço', 'preços', 'valor', 'valores', 'plano']
+    : ['sistema', 'software', 'automação', 'integração', 'painel', 'preço', 'preços', 'valor', 'valores', 'plano'],
+});
 
 const sendJson = (res, status, body) => {
   res.writeHead(status, {
@@ -131,15 +138,34 @@ async function generateReply(contents) {
     throw new Error('O assistente inteligente está temporariamente indisponível.');
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-  if (!/^gemini-[a-zA-Z0-9._-]+$/.test(model)) {
+  const model = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
+  const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite';
+  if (
+    !/^gemini-[a-zA-Z0-9._-]+$/.test(model) ||
+    !/^gemini-[a-zA-Z0-9._-]+$/.test(fallbackModel)
+  ) {
     throw new Error('O assistente inteligente está temporariamente indisponível.');
   }
 
-  let upstream;
+  const recentUserQuestions = contents
+    .filter((item) => item.role === 'user')
+    .slice(-2)
+    .map((item) => item.parts[0].text)
+    .join('\n');
+  let relevantContext;
   try {
-    upstream = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    relevantContext = await getRelevantContext(recentUserQuestions, [
+      makePlanContext('sites', PLANOS.sites, 'Preços e planos de sites'),
+      makePlanContext('software', PLANOS.software, 'Preços e planos de sistemas e software'),
+    ]);
+  } catch (error) {
+    console.error('[api/chat] Falha ao carregar o contexto:', error.message);
+    throw new Error('Não foi possível carregar as informações do assistente.');
+  }
+
+  const requestModel = (targetModel, timeout) =>
+    fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
       {
         method: 'POST',
         headers: {
@@ -147,7 +173,11 @@ async function generateReply(contents) {
           'x-goog-api-key': process.env.GEMINI_API_KEY,
         },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemInstruction }] },
+          system_instruction: {
+            parts: [{
+              text: `${systemInstruction}\n\nContexto relevante para esta pergunta:\n${relevantContext}`,
+            }],
+          },
           contents,
           generationConfig: {
             temperature: 0.7,
@@ -166,12 +196,32 @@ async function generateReply(contents) {
             },
           },
         }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(timeout),
       }
     );
+
+  let upstream;
+  try {
+    upstream = await requestModel(model, 30_000);
   } catch (error) {
     console.error('[api/chat] Falha ao conectar ao Gemini:', error.message);
     throw new Error('Não foi possível conectar ao assistente inteligente.');
+  }
+
+  if (
+    !upstream.ok &&
+    [429, 500, 502, 503, 504].includes(upstream.status) &&
+    fallbackModel !== model
+  ) {
+    console.warn(
+      `[api/chat] Modelo ${model} indisponível (HTTP ${upstream.status}); tentando ${fallbackModel}.`
+    );
+    try {
+      upstream = await requestModel(fallbackModel, 15_000);
+    } catch (error) {
+      console.error(`[api/chat] Falha ao conectar ao modelo alternativo ${fallbackModel}:`, error.message);
+      throw new Error('Não foi possível conectar ao assistente inteligente.');
+    }
   }
 
   if (!upstream.ok) {
@@ -185,6 +235,12 @@ async function generateReply(contents) {
     console.error(
       `[api/chat] Gemini respondeu com status ${upstream.status}: ${providerError || 'sem detalhes'}.`
     );
+    if (upstream.status === 429) {
+      throw new Error('O limite gratuito ou de requisições da IA foi atingido. Tente novamente mais tarde.');
+    }
+    if ([500, 502, 503, 504].includes(upstream.status)) {
+      throw new Error('Os modelos de IA estão temporariamente indisponíveis. Tente novamente em instantes.');
+    }
     throw new Error('O assistente inteligente não conseguiu responder agora.');
   }
 
